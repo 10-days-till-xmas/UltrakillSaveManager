@@ -40,7 +40,7 @@ internal class ProgramMenu(string saveFolderDir = @"C:/Users/10_days_till_xmas/D
     public static void DisplayOptions(Node node, int indent = 0)
     {
         string indentation = new(' ', indent * 4);
-        
+
         if (node is Branch branch)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;

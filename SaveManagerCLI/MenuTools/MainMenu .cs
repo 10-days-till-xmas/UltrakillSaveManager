@@ -1,4 +1,6 @@
-﻿namespace SaveManagerCLI.MenuTools;
+﻿using SaveManagerCLI.MenuTools.OptionTree;
+
+namespace SaveManagerCLI.MenuTools;
 
 internal class MainMenu
 {
@@ -12,18 +14,14 @@ internal class MainMenu
         }
     }
 
-    private readonly Dictionary<string, Action> optionFuncs = new()
-    {
-        { "Exit", () => Environment.Exit(0) }
-    };
-    private OptionSelector? selector = null;
     internal void LoadMenu()
     {
+        ProgramMenu programMenu = new();
+        Option Root = new(programMenu.OptionsTree);
+        OptionSelector selector = new(Root);
         Console.Clear();
-        Console.WriteLine("Select one of the following options to proceed:");
-        selector = new([.. optionFuncs.Keys]);
-        selector.PrintOptionSelector(true, out string selectedOption);
-        Console.WriteLine("You selected: " + selectedOption);
-        optionFuncs[selectedOption]();
+        Console.WriteLine("Select one of the following Options to proceed:");
+        selector.PrintOptionSelector();
+        // TODO: Implement the rest of the program. Handle executing the leaves
     }
 }
