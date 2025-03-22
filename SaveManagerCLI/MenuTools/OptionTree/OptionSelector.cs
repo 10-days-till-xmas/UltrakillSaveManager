@@ -4,8 +4,8 @@
 /// Class to handle selecting options from an <see cref="Option"/> tree
 /// </summary>
 /// <remarks>
-/// Calls the <see cref="Leaf.onExecute"/> method when a leaf is selected.
 /// The <see cref="globalRoot"/> cannot be chosen as an option, i.e . it is not selectable and is only used as a reference.
+/// However, <c>allowEscapingFromRoot</c> in <see cref="PrintOptionSelector"/> can be set to <see langword="true"/> to allow returning from the method without actually choosing a value, enabling a default way to go back.
 /// </remarks>
 public partial class OptionSelector
 {
