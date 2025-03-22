@@ -1,30 +1,58 @@
-﻿namespace SaveManagerCLI;
+﻿using SaveManagerCLI.MenuTools.OptionTree;
+using System.Drawing;
 
-internal class ProgramSettings
+namespace SaveManagerCLI;
+
+internal static class ProgramSettings
 {
-    // display settings that'd include things like the save directory, assembly path, theme maybe? etc...
+    public static Branch Branch = new("Settings",
+        new Leaf("Change Save Directory", PromptToChangeSaveDirectory),
+        new Leaf("Change Assembly Path", PromptToChangeAssemblyPath),
+        new Leaf("Change Game Directory", PromptToChangeGameDirectory),
+        new Leaf("Go Back", () => { })
+    );
 
-    internal static void PrintSettingsMenu()
+    public static void GameDir(string gameDir)
     {
-        Console.WriteLine("Settings Menu:");
-        Console.WriteLine("1. Change Save Directory");
-        Console.WriteLine("2. Change Assembly Path");
-        Console.WriteLine("3. Change Theme");
-        Console.WriteLine("4. Go Back");
+        SaveFolderDir = Path.Join(gameDir, "Saves");
+        AssemblyPath = Path.Join(gameDir, "ULTRAKILL_Data", "Managed", "Assembly-CSharp.dll");
     }
+        public static string SaveFolderDir { get; set; } = @"C:\Program Files (x86)\Steam\steamapps\common\ULTRAKILL\Saves";
+    /// <summary>
+    /// Used just in case the assembly path can't be resolved on its own
+    /// </summary>
+    public static string AssemblyPath { get; set; } = @"C:\Program Files (x86)\Steam\steamapps\common\ULTRAKILL\ULTRAKILL_Data\Managed\Assembly-CSharp.dll";
 
+    internal static void PromptToChangeGameDirectory()
+    {
+        string gameDir = "";
+        PromptToChangeString(ref gameDir, "Game Directory");
+        GameDir(gameDir);
+    }
     internal static void PromptToChangeSaveDirectory()
     {
-        Console.WriteLine("Enter the save folder directory:");
-
-        string saveFolderDir;
-        do
-        {
-            saveFolderDir = @"C:/Users/10_days_till_xmas/Documents/coding/C#/UltraModding/ultrakill+bepinex/Saves";
-            //Console.ReadLine()!;
-
-        } while (string.IsNullOrWhiteSpace(saveFolderDir));
-        Console.WriteLine("SaveData Folder Directory: " + saveFolderDir);
+        string saveFolderDir = SaveFolderDir;
+        PromptToChangeString(ref saveFolderDir, "SaveData Folder Directory");
+        SaveFolderDir = saveFolderDir;
+    }
+    internal static void PromptToChangeAssemblyPath()
+    {
+        string assemblyPath = AssemblyPath;
+        PromptToChangeString(ref assemblyPath, "Assembly-CSharp.dll Path");
+        AssemblyPath = assemblyPath;
     }
 
+    internal static void PromptToChangeString(ref string target, string name)
+    {
+        Console.WriteLine($"Enter the {name}:");
+        string? input;
+        do
+        {
+            input = Console.ReadLine();
+        } while (string.IsNullOrWhiteSpace(input));
+        Console.Write($"{name}: ");
+        Color stringColor = Color.FromArgb(0xd6, 0x9d, 0x85);
+        ConsoleUtils.ColoredString($"\"{input}\"", stringColor);
+        target = input!;
+    }
 }
