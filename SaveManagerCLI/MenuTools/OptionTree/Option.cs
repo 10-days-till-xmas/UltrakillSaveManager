@@ -2,18 +2,19 @@
 
 public class Option
 {
-    private readonly struct OptionName(Option option)
+    public Node Node { get; init; }
+
+    public string Name
     {
-        internal readonly Option option = option;
-        public override string ToString()
+        get
         {
-            string indentation = new(' ', (option.depth * 4) - 2);
+            string indentation = new(' ', (depth * 4) - 2);
             string prefix;
-            if (!option.HasChildren)
+            if (!HasChildren)
             {
                 prefix = "  ";
             }
-            else if (option.isRoot)
+            else if (isRoot)
             {
                 prefix = "↓ ";
             }
@@ -21,13 +22,9 @@ public class Option
             {
                 prefix = "→ ";
             }
-            return indentation + prefix + option.Node.Name;
+            return indentation + prefix + Node.Name;
         }
     }
-    public Node Node { get; init; }
-
-    private readonly OptionName optionName;
-    public string Name => optionName.ToString();
 
     /// <summary>
     /// The depth of the option in the tree. 
@@ -48,7 +45,6 @@ public class Option
     {
         Node = node;
         this.Parent = Parent;
-        optionName = new(this);
 
         if (Parent is not null)
         {
@@ -78,5 +74,10 @@ public class Option
         {
             return [];
         }
+    }
+
+    public override string ToString()
+    {
+        return Name;
     }
 }

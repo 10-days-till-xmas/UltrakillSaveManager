@@ -3,28 +3,26 @@
 public partial class OptionSelector
 {
     /// <summary>
-    /// This is the line where the Options will be displayed
+    /// This is the line where the LocalOptions will be displayed
     /// </summary>
     readonly int ConsoleLine = Console.CursorTop;
 
     /// <summary>
-    /// Displays a list of Options and allows the user to select one by using the arrow keys or the number keys
+    /// Displays a list of LocalOptions and allows the user to select one by using the arrow keys or the number keys
     /// </summary>
     /// <param name="useNumber">If true, the user can select an option by pressing the number key corresponding to the option</param>
     /// <param name="option">The index of the selected option</param>
-    public void PrintOptionSelector(bool useNumber = true)
+    public Delegate PrintOptionSelector(bool useNumber = true, bool allowEscapingFromRoot = false)
     {
         bool leafSelected = false;
-        Action? selectedLeaf = null;
+        Delegate? selectedLeaf = null;
+        (bool Previous, bool Current) movedBack = (false, false);
         do
         {
-            Console.CursorTop = ConsoleLine;
-            Console.CursorLeft = 0;
             PrintOptions();
-            HandleKeyInputs(useNumber, ref leafSelected, ref selectedLeaf);
+            HandleKeyInputs(useNumber, allowEscapingFromRoot, ref leafSelected, ref selectedLeaf, ref movedBack);
         } while (!leafSelected);
-
-        ConsoleUtils.ClearLine();
+        return selectedLeaf!;
     }
 
     /// <summary>
@@ -39,25 +37,43 @@ public partial class OptionSelector
     /// <param name="selectedLeaf">
     /// A reference to the action associated with the selected leaf option.
     /// </param>
-    private void HandleKeyInputs(bool useNumber, ref bool leafSelected, ref Action? selectedLeaf)
+    private void HandleKeyInputs(bool useNumber,
+                                 bool allowEscaping,
+                                 ref bool leafSelected,
+                                 ref Delegate? selectedLeaf,
+                                 ref (bool Previous, bool Current) failedMoveBack)
     {
         ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
-
+        failedMoveBack.Previous = failedMoveBack.Current;
+        failedMoveBack.Current = false;
         switch (keyInfo.Key)
         {
             case ConsoleKey.Backspace:
             case ConsoleKey.Escape:
             case ConsoleKey.LeftArrow:
             case ConsoleKey.Enter when keyInfo.Modifiers.HasFlag(ConsoleModifiers.Shift):
-                bool movedBack = GoBack();
-                if (!movedBack)
+                failedMoveBack.Current = !GoBack();
+                if (!allowEscaping)
                 {
-                    ConsoleUtils.Warn($"Root is not accessible!");
+                    ConsoleUtils.Warn("Cannot go back from here.");
+                    break;
+                }
+
+                if (failedMoveBack.Current && !failedMoveBack.Previous)
+                {
+                    ConsoleUtils.Warn($"Press {keyInfo.Key} again to return to the previous menu.");
+                }
+                else if (failedMoveBack.Previous && failedMoveBack.Current)
+                {
+                    ++Console.CursorTop;
+                    leafSelected = true;
+                    selectedLeaf = () => { };
                 }
                 break;
 
             case ConsoleKey.Enter:
             case ConsoleKey.RightArrow:
+                PrintOptions(selected: true);
                 leafSelected = Select(out selectedLeaf);
                 break;
 
@@ -82,7 +98,7 @@ public partial class OptionSelector
                     : keyInfo.Key - ConsoleKey.D1;
                 try
                 {
-                    GoTo(index);
+                    GoToOption(index);
                 }
                 catch (ArgumentOutOfRangeException)
                 {
@@ -92,21 +108,41 @@ public partial class OptionSelector
         }
     }
 
-    private void PrintOptions()
+    private int maxIndex = Console.CursorTop;
+    private void PrintOptions(bool selected = false)
     {
-        for (int i = 0; i < Options.Length; i++)
+        Console.CursorTop = ConsoleLine;
+        Console.CursorLeft = 0;
+        ConsoleUtils.ClearLines(maxIndex);
+        for (int i = 0; i < VisibleOptions.Length; i++)
         {
-            if (Options[i] == CurrentOption)
+            var index = Array.IndexOf(LocalOptions, VisibleOptions[i]);
+            if (VisibleOptions[i] == CurrentOption)
             {
-                Console.BackgroundColor = ConsoleColor.Gray;
+
+                Console.BackgroundColor = selected ? ConsoleColor.Green : ConsoleColor.Gray;
                 Console.ForegroundColor = ConsoleColor.Black;
-                Console.WriteLine($"> {i + 1}. {Options[i]}");
+                string ansiColor = selected ? ConsoleUtils.CustomColor(0x0a, 0x5a, 0x0a) : "";
+
+                Console.WriteLine($"{ansiColor}> {index + 1}┃{VisibleOptions[i]}");
                 Console.ResetColor();
             }
             else
             {
-                Console.WriteLine($"  {i + 1}. {Options[i]}");
+                if (index == -1)
+                {
+                    Console.Write("   ");
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.Write("│");
+                    Console.ResetColor();
+                    Console.WriteLine(VisibleOptions[i]);
+                }
+                else
+                {
+                    Console.WriteLine($"  {index + 1}┃{VisibleOptions[i]}");
+                }
             }
         }
+        maxIndex = Console.CursorTop + 1;
     }
 }

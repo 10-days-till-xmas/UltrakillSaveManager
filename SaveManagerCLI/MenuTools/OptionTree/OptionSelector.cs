@@ -11,11 +11,27 @@ public partial class OptionSelector
 {
     private readonly Option globalRoot;
     public Option CurrentRoot { get; private set; }
-    public Option[] Options => CurrentRoot.Children.ToArray();
-
     public Option CurrentOption { get; private set; }
 
-    public int CurrentIndex => Array.IndexOf(Options, CurrentOption);
+    public Option[] LocalOptions => CurrentRoot.Children.ToArray();
+
+    public Option[] VisibleOptions => GetVisibleOptions(globalRoot);
+
+    private static Option[] GetVisibleOptions(Option root)
+    {
+        List<Option> visibleOptions = [];
+        foreach (var option in root.Children)
+        {
+            visibleOptions.Add(option);
+            if (option.isRoot)
+            {
+                visibleOptions.AddRange(GetVisibleOptions(option));
+            }
+        }
+        return visibleOptions.ToArray();
+    }
+
+    public int LocalCurrentIndex => Array.IndexOf(LocalOptions, CurrentOption);
 
     public OptionSelector(Option globalRoot)
     {
@@ -28,12 +44,12 @@ public partial class OptionSelector
     {
         if (CurrentOption.Node is Leaf leaf)
         {
-            leaf.onExecute(); // Not sure if this is a good idea
+            leaf.onExecute.DynamicInvoke(); // Not sure if this is a good idea
             return;
         }
         CurrentRoot = CurrentOption;
     }
-    public bool Select(out Action? leaf_onExecute)
+    public bool Select(out Delegate? leaf_onExecute)
     {
         if (CurrentOption.Node is Leaf leaf)
         {
@@ -41,6 +57,8 @@ public partial class OptionSelector
             return true;
         }
         CurrentRoot = CurrentOption;
+        CurrentOption = CurrentRoot.Children[0];
+        CurrentRoot.isRoot = true;
         leaf_onExecute = null;
         return false;
     }
@@ -49,42 +67,44 @@ public partial class OptionSelector
     {
         if (CurrentRoot != globalRoot)
         {
+            CurrentRoot.isRoot = false;
             CurrentOption = CurrentRoot;
+            CurrentRoot = CurrentOption.Parent!;
             return true;
         }
         return false;
     }
 
-    public void GoTo(int index)
+    public void GoToOption(int index)
     {
-        if (index < 0 || index >= Options.Length)
+        if (index < 0 || index >= LocalOptions.Length)
         {
             throw new ArgumentOutOfRangeException(nameof(index));
         }
-        CurrentOption = Options[index];
+        CurrentOption = LocalOptions[index];
     }
 
     public void MoveUp()
     {
-        if (CurrentIndex == 0)
+        if (LocalCurrentIndex == 0)
         {
-            CurrentOption = Options[^1];
+            CurrentOption = LocalOptions[^1];
         }
         else
         {
-            CurrentOption = Options[CurrentIndex - 1];
+            CurrentOption = LocalOptions[LocalCurrentIndex - 1];
         }
     }
 
     public void MoveDown()
     {
-        if (CurrentIndex == Options.Length - 1)
+        if (LocalCurrentIndex == LocalOptions.Length - 1)
         {
-            CurrentOption = Options[0];
+            CurrentOption = LocalOptions[0];
         }
         else
         {
-            CurrentOption = Options[CurrentIndex + 1];
+            CurrentOption = LocalOptions[LocalCurrentIndex + 1];
         }
     }
 }

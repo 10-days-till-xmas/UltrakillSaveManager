@@ -2,6 +2,20 @@
 
 public static class ConsoleUtils
 {
+
+    public static string ColoredString(string text, byte red, byte green, byte blue)
+    {
+        return $"{CustomColor(red, green, blue)}{text}{ResetCustomColor()}";
+    }
+    public static string CustomColor(byte red, byte green, byte blue)
+    {
+        return $"\u001b[38;2;{red};{green};{blue}m";
+    }
+    public static string ResetCustomColor()
+    {
+        return "\u001b[0m";
+    }
+
     public static void Warn(object? message)
     {
         Console.ForegroundColor = ConsoleColor.Yellow;
@@ -34,5 +48,16 @@ public static class ConsoleUtils
         Console.SetCursorPosition(0, (int)line);
         Console.Write(new string(' ', Console.WindowWidth));
         Console.SetCursorPosition(0, oldTop);
+    }
+    public static void ClearLines(int end)
+    {
+        ClearLines(Console.CursorTop, end);
+    }
+    public static void ClearLines(int start, int end)
+    {
+        for (int i = start; i <= end; i++)
+        {
+            ClearLine(i);
+        }
     }
 }
