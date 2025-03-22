@@ -1,27 +1,26 @@
 ﻿using SaveManagerCLI;
+using SaveManagerCLI.MenuTools.OptionTree;
+using System.Text;
 
+Console.OutputEncoding = Encoding.UTF8;
 
-Console.WriteLine("Enter the save folder directory:");
+Branch MainMenu = new("Main Menu",
+    new Leaf("Modify Saves", () => Console.WriteLine("Go Into save navigator!!")),
+    new Branch("Settings",
+        new Leaf("Edit Save folder", () => Console.WriteLine("editing save folder placeholder")),
+        new Leaf("Edit Assembly Path", () => Console.WriteLine("editing assembly path placeholder")),
+        new Leaf("Edit Theme", () => Console.WriteLine("editing theme placeholder"))
+        ),
+    new Leaf("Exit", () => Environment.Exit(0))
+    );
 
-string saveFolderDir;
-do
+OptionSelector baseSelector = new(new Option(MainMenu));
+Delegate onExecute = baseSelector.PrintOptionSelector();
+if (onExecute is Action act)
 {
-    saveFolderDir = @"C:/Users/10_days_till_xmas/Documents/coding/C#/UltraModding/ultrakill+bepinex/Saves";
-    //Console.ReadLine()!;
-
-} while (string.IsNullOrWhiteSpace(saveFolderDir));
-Console.WriteLine("SaveData Folder Directory: " + saveFolderDir);
-
-
-ProgramMenu programMenu = new(saveFolderDir);
-ProgramMenu.DisplayOptions(programMenu.OptionsTree);
-
-//Slot Slot1 = new(1);
-
-//var generalProgressData = TypedSaveFile.GetSaveFile(saveFolderDir + Slot1.GeneralProgress);
-
-//var fields = generalProgressData.GetFields();
-//foreach (var field in fields)
-//{
-//    Console.WriteLine($"{field.Name}: {field.GetValue(generalProgressData.SaveData)}");
-//}
+    act();
+}
+else
+{
+    ConsoleUtils.Warn("onExecute is not an Action");
+}

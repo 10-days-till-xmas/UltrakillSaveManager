@@ -29,7 +29,7 @@ internal class ProgramMenu(string saveFolderDir = @"C:/Users/10_days_till_xmas/D
         );
     }
 
-    public Branch OptionsTree => new("Options",
+    public Branch OptionsTree => new("LocalOptions",
         SlotSaves(1),
         SlotSaves(2),
         SlotSaves(3),
