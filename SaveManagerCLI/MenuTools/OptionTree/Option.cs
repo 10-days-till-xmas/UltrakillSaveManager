@@ -1,6 +1,6 @@
 ﻿namespace SaveManagerCLI.MenuTools.OptionTree;
 
-internal class Option
+public class Option
 {
     private readonly struct OptionName(Option option)
     {
@@ -9,7 +9,7 @@ internal class Option
         {
             string indentation = new(' ', (option.depth * 4) - 2);
             string prefix;
-            if(!option.HasChildren)
+            if (!option.HasChildren)
             {
                 prefix = "  ";
             }
@@ -24,10 +24,10 @@ internal class Option
             return indentation + prefix + option.Node.Name;
         }
     }
-    internal Node Node { get; init; }
+    public Node Node { get; init; }
 
     private readonly OptionName optionName;
-    internal string Name => optionName.ToString();
+    public string Name => optionName.ToString();
 
     /// <summary>
     /// The depth of the option in the tree. 
@@ -35,16 +35,16 @@ internal class Option
     /// <remarks>
     /// 0 is the root, 1 means 1 level deep, etc.
     /// </remarks>
-    internal int depth;
+    public int depth;
 
-    internal readonly List<Option> Children = [];
+    public readonly List<Option> Children = [];
 
-    internal Option? Parent { get; private init; }
+    public Option? Parent { get; private init; }
 
-    internal bool isRoot = false;
-    internal bool HasChildren => Children.Count > 0;
+    public bool isRoot = false;
+    public bool HasChildren => Children.Count > 0;
 
-    internal Option(Node node, Option? Parent = null)
+    public Option(Node node, Option? Parent = null)
     {
         Node = node;
         this.Parent = Parent;
@@ -68,7 +68,7 @@ internal class Option
         };
     }
 
-    internal Option[] InstantiateChildren()
+    public Option[] InstantiateChildren()
     {
         if (Node is Branch branch)
         {
