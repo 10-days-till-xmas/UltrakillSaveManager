@@ -17,11 +17,11 @@ public partial class SaveFile
         }
     }
 
-    public SaveFile(string path)
+    public SaveFile(string path, object? saveData = null)
     {
         // TODO: Add type validation
         this.path = path;
-        _saveData = Read(path) ?? throw new ArgumentException("SaveData File Not Found");
+        _saveData = saveData ?? Read(path) ?? throw new ArgumentException("SaveData File Not Found");
     }
     public void Write() => Write(path, _saveData);
 
