@@ -1,69 +1,90 @@
 ﻿namespace SaveManagerCLI.MenuTools.OptionTree;
 
-internal class OptionSelector
+/// <summary>
+/// Class to handle selecting options from an <see cref="Option"/> tree
+/// </summary>
+/// <remarks>
+/// Calls the <see cref="Leaf.onExecute"/> method when a leaf is selected.
+/// The <see cref="globalRoot"/> cannot be chosen as an option, i.e . it is not selectable and is only used as a reference.
+/// </remarks>
+public partial class OptionSelector
 {
-    internal Option CurrentOption 
-    { 
-        get
-        {
-            return options[CurrentIndex];
-        }
-        private set
-        {
-            CurrentIndex = Array.IndexOf(options, value);
-        }
-    }
+    private readonly Option globalRoot;
+    public Option CurrentRoot { get; private set; }
+    public Option[] Options => CurrentRoot.Children.ToArray();
 
-    private int _currentIndex = 0;
-    internal int CurrentIndex
+    public Option CurrentOption { get; private set; }
+
+    public int CurrentIndex => Array.IndexOf(Options, CurrentOption);
+
+    public OptionSelector(Option globalRoot)
     {
-        get => _currentIndex;
-        set
-        {
-            if (IsIndexValid(value))
-            {
-                _currentIndex = value;
-            }
-            else
-            {
-                _currentIndex = 0;
-            }
-        }
+        CurrentRoot = globalRoot;
+        this.globalRoot = globalRoot;
+        CurrentOption = globalRoot.Children[0];
     }
 
-    internal Option[] options;
-    internal Option? Parent => CurrentOption.Parent;
-
-    internal OptionSelector(Option[] root)
-    {
-        CurrentOption = root[0];
-        options = root;
-    }
-
-    private bool IsIndexValid(int index)
-    {
-        return 0 <= index && index < CurrentOption.Children.Count;
-    }
-
-    internal void Select(int index)
+    public void SelectAndExecute()
     {
         if (CurrentOption.Node is Leaf leaf)
         {
             leaf.onExecute(); // Not sure if this is a good idea
+            return;
         }
-        if (CurrentOption.HasChildren)
+        CurrentRoot = CurrentOption;
+    }
+    public bool Select(out Action? leaf_onExecute)
+    {
+        if (CurrentOption.Node is Leaf leaf)
         {
-            if (IsIndexValid(index))
-            {
-                CurrentOption = CurrentOption.Children[index];
-            }
+            leaf_onExecute = leaf.onExecute;
+            return true;
+        }
+        CurrentRoot = CurrentOption;
+        leaf_onExecute = null;
+        return false;
+    }
+
+    public bool GoBack()
+    {
+        if (CurrentRoot != globalRoot)
+        {
+            CurrentOption = CurrentRoot;
+            return true;
+        }
+        return false;
+    }
+
+    public void GoTo(int index)
+    {
+        if (index < 0 || index >= Options.Length)
+        {
+            throw new ArgumentOutOfRangeException(nameof(index));
+        }
+        CurrentOption = Options[index];
+    }
+
+    public void MoveUp()
+    {
+        if (CurrentIndex == 0)
+        {
+            CurrentOption = Options[^1];
+        }
+        else
+        {
+            CurrentOption = Options[CurrentIndex - 1];
         }
     }
-    internal void GoBack()
+
+    public void MoveDown()
     {
-        if (CurrentOption.Parent is not null)
+        if (CurrentIndex == Options.Length - 1)
         {
-            CurrentOption = CurrentOption.Parent;
+            CurrentOption = Options[0];
+        }
+        else
+        {
+            CurrentOption = Options[CurrentIndex + 1];
         }
     }
 }
