@@ -7,6 +7,8 @@ public class TypedSaveFile(string path, Type type, object? saveData = null) : Sa
 {
     public Type Type = type;
 
+    // TODO: Make this all into a dynamic class to wrap the saveData object
+    // Also, it could be possible to make custom saves this way?
     public bool GetField<U>(string fieldName, out U? value)
     {
         var field = Type.GetField(fieldName);
