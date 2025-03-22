@@ -1,6 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using System;
 
 namespace UltrakillSaveManager.SaveFile;
 public partial class SaveFile
@@ -10,10 +10,10 @@ public partial class SaveFile
     public object SaveData
     {
         get => _saveData;
-        set 
-        { 
-            _saveData = value; 
-            Write(); 
+        set
+        {
+            _saveData = value;
+            Write();
         }
     }
 

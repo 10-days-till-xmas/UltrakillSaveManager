@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Reflection;
 
 namespace UltrakillSaveManager.SaveFile;
@@ -49,7 +48,7 @@ public class TypedSaveFile(string path, Type type, object? saveData = null) : Sa
 
         return saveFile.SaveData switch
         {
-            RankData save => new RankDataSaveFile(path, save) {},
+            RankData save => new RankDataSaveFile(path, save) { },
             CyberRankData save => new CyberRankDataSaveFile(path, save),
             RankScoreData save => new RankScoreDataSaveFile(path, save),
             GameProgressData save => new GameProgressDataSaveFile(path, save),

@@ -7,8 +7,8 @@ public class Slot(int slot)
     public readonly string prefix = $"/Slot{slot}";
     private const string ext = ".bepis";
     public string CyberGrindHiScore => $"{prefix}/cybergrindhighscore{ext}";
-    public Func<int,string> DifficultyProgress => 
-        (int difficultyIndex ) => $"{prefix}/difficulty{difficultyIndex}progress{ext}";
+    public Func<int, string> DifficultyProgress =>
+        (int difficultyIndex) => $"{prefix}/difficulty{difficultyIndex}progress{ext}";
 
     public string GeneralProgress => $"{prefix}/generalprogress{ext}";
 
@@ -21,6 +21,6 @@ public class Slot(int slot)
         }
         return $"{prefix}/lvl{num}progress{ext}";
     }
-    
+
 }
 
