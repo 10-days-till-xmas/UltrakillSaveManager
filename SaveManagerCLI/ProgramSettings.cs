@@ -6,9 +6,9 @@ namespace SaveManagerCLI;
 internal static class ProgramSettings
 {
     public static Branch Branch = new("Settings",
-        new Leaf("Change Save Directory", PromptToChangeSaveDirectory),
-        new Leaf("Change Assembly Path", PromptToChangeAssemblyPath),
-        new Leaf("Change Game Directory", PromptToChangeGameDirectory)
+        new Leaf<Action>("Change Save Directory", PromptToChangeSaveDirectory),
+        new Leaf<Action>("Change Assembly Path", PromptToChangeAssemblyPath),
+        new Leaf<Action>("Change Game Directory", PromptToChangeGameDirectory)
     );
 
     public static void GameDir(string gameDir)
