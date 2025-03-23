@@ -27,6 +27,20 @@ public static class ConsoleUtils
         return "\u001b[0m";
     }
 
+    public static void WaitForEnterPress()
+    {
+        Console.WriteLine("Press Enter to continue...");
+        do
+        {
+            
+        } while (Console.ReadKey(intercept: true).Key != ConsoleKey.Enter);
+    }
+
+    public static void WaitForKeyPress()
+    {
+        Console.WriteLine("Press any key to continue...");
+        Console.ReadKey(intercept: true);
+    }
     public static void Warn(object? message)
     {
         Console.ForegroundColor = ConsoleColor.Yellow;
