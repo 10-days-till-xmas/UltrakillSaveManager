@@ -1,16 +1,27 @@
-﻿namespace SaveManagerCLI;
+﻿using System.Drawing;
+
+namespace SaveManagerCLI;
 
 public static class ConsoleUtils
 {
-
+    public static string CustomColor(Color color)
+    {
+        return $"\u001b[38;2;{color.R};{color.G};{color.B}m";
+    }
+    public static string CustomColor(byte red, byte green, byte blue)
+    {
+        Color color = Color.FromArgb(red, green, blue);
+        return CustomColor(color);
+    }
+    public static string ColoredString(string text, Color color)
+    {
+        return $"{CustomColor(color)}{text}{ResetCustomColor()}";
+    }
     public static string ColoredString(string text, byte red, byte green, byte blue)
     {
         return $"{CustomColor(red, green, blue)}{text}{ResetCustomColor()}";
     }
-    public static string CustomColor(byte red, byte green, byte blue)
-    {
-        return $"\u001b[38;2;{red};{green};{blue}m";
-    }
+
     public static string ResetCustomColor()
     {
         return "\u001b[0m";
@@ -43,9 +54,8 @@ public static class ConsoleUtils
 
     public static void ClearLine(int? line = null)
     {
-        line ??= Console.CursorTop;
         int oldTop = Console.CursorTop;
-        Console.SetCursorPosition(0, (int)line);
+        Console.SetCursorPosition(0, line ?? oldTop);
         Console.Write(new string(' ', Console.WindowWidth));
         Console.SetCursorPosition(0, oldTop);
     }
