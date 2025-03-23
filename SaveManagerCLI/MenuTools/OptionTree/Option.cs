@@ -57,18 +57,18 @@ public class Option
 
         Children = node switch
         {
-            Branch branch => (from child in branch.children
+            IBranch branch => (from child in branch.Children
                               select new Option(child, this)).ToList(),
-            Leaf => [],
+            ILeaf => [],
             _ => throw new ArgumentException("Node must be a Branch or a Leaf"),
         };
     }
 
     public Option[] InstantiateChildren()
     {
-        if (Node is Branch branch)
+        if (Node is IBranch branch)
         {
-            return branch.children.Select(child => new Option(child, this)).ToArray();
+            return branch.Children.Select(child => new Option(child, this)).ToArray();
         }
         else
         {

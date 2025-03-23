@@ -46,7 +46,7 @@ internal class ProgramMenu(string saveFolderDir = @"C:/Users/10_days_till_xmas/D
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"{indentation}{node.Name}:");
             Console.ResetColor();
-            foreach (var child in branch.children)
+            foreach (var child in branch.Children)
             {
                 DisplayOptions(child, indent + 1);
             }

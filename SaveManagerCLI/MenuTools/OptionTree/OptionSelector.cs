@@ -44,7 +44,7 @@ public partial class OptionSelector
     {
         if (CurrentOption.Node is Leaf leaf)
         {
-            leaf.onExecute.DynamicInvoke(); // Not sure if this is a good idea
+            leaf.OnExecute.DynamicInvoke(); // Not sure if this is a good idea
             return;
         }
         CurrentRoot = CurrentOption;
@@ -53,7 +53,7 @@ public partial class OptionSelector
     {
         if (CurrentOption.Node is Leaf leaf)
         {
-            leaf_onExecute = leaf.onExecute;
+            leaf_onExecute = leaf.OnExecute;
             return true;
         }
         CurrentRoot = CurrentOption;

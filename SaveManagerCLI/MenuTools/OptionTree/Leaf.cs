@@ -1,6 +1,10 @@
 ﻿namespace SaveManagerCLI.MenuTools.OptionTree;
 
-internal class Leaf(string name, Delegate onExecute) : Node(name)
+public interface ILeaf;
+
+public class Leaf(string name, Delegate onExecute) : Leaf<Delegate>(name, onExecute), ILeaf
 {
-    public readonly Delegate onExecute = onExecute;
+    public Delegate OnExecute => Value;
 }
+
+public class Leaf<T>(string name, T value) : Node<T>(name, value), ILeaf;
