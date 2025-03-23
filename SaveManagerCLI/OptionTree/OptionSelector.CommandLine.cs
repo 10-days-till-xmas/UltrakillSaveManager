@@ -52,27 +52,33 @@ public partial class OptionSelector
             case ConsoleKey.Escape:
             case ConsoleKey.LeftArrow:
             case ConsoleKey.Enter when keyInfo.Modifiers.HasFlag(ConsoleModifiers.Shift):
+                ConsoleUtils.ClearLine(messageLine);
                 failedMoveBack.Current = !GoBack();
-                if (!allowEscaping)
+                if (!allowEscaping & failedMoveBack.Current)
                 {
                     ConsoleUtils.Warn("Cannot go back from here.");
+                    --Console.CursorTop;
                     break;
                 }
 
                 if (failedMoveBack.Current && !failedMoveBack.Previous)
                 {
+                    ConsoleUtils.ClearLine();
+                    messageLine = Console.CursorTop;
                     ConsoleUtils.Warn($"Press {keyInfo.Key} again to return to the previous menu.");
+                    --Console.CursorTop;
                 }
                 else if (failedMoveBack.Previous && failedMoveBack.Current)
                 {
                     ++Console.CursorTop;
                     leafSelected = true;
-                    selectedLeaf = () => { };
+                    selectedLeaf = default;
                 }
                 break;
 
             case ConsoleKey.Enter:
             case ConsoleKey.RightArrow:
+                ConsoleUtils.ClearLine(messageLine);
                 PrintOptions(selected: true);
                 leafSelected = Select(out selectedLeaf);
                 break;
@@ -81,12 +87,14 @@ public partial class OptionSelector
             case ConsoleKey.PageUp:
             case ConsoleKey.Tab when keyInfo.Modifiers.HasFlag(ConsoleModifiers.Shift):
                 MoveUp();
+                ConsoleUtils.ClearLine(messageLine);
                 break;
 
             case ConsoleKey.DownArrow:
             case ConsoleKey.PageDown:
             case ConsoleKey.Tab when !keyInfo.Modifiers.HasFlag(ConsoleModifiers.Shift):
                 MoveDown();
+                ConsoleUtils.ClearLine(messageLine);
                 break;
 
             case ConsoleKey key when useNumber && (
@@ -108,22 +116,23 @@ public partial class OptionSelector
         }
     }
 
-    private int maxIndex = Console.CursorTop;
+    private int messageLine;
     private void PrintOptions(bool selected = false)
     {
+        ConsoleUtils.ClearLines(ConsoleLine, messageLine - 1);
         Console.CursorTop = ConsoleLine;
         Console.CursorLeft = 0;
-        ConsoleUtils.ClearLines(maxIndex);
+        
         for (int i = 0; i < VisibleOptions.Length; i++)
         {
             var index = Array.IndexOf(LocalOptions, VisibleOptions[i]);
             if (VisibleOptions[i] == CurrentOption)
             {
-
+                ConsoleUtils.ClearLine();
                 Console.BackgroundColor = selected ? ConsoleColor.Green : ConsoleColor.Gray;
                 Console.ForegroundColor = ConsoleColor.Black;
                 string ansiColor = selected ? ConsoleUtils.CustomColor(0x0a, 0x5a, 0x0a) : "";
-
+                
                 Console.WriteLine($"{ansiColor}> {index + 1}┃{VisibleOptions[i]}");
                 Console.ResetColor();
             }
@@ -131,6 +140,7 @@ public partial class OptionSelector
             {
                 if (index == -1)
                 {
+                    ConsoleUtils.ClearLine();
                     Console.Write("   ");
                     Console.ForegroundColor = ConsoleColor.DarkGray;
                     Console.Write("│");
@@ -139,10 +149,11 @@ public partial class OptionSelector
                 }
                 else
                 {
+                    ConsoleUtils.ClearLine();
                     Console.WriteLine($"  {index + 1}┃{VisibleOptions[i]}");
                 }
             }
         }
-        maxIndex = Console.CursorTop + 1;
+        messageLine = Console.CursorTop;
     }
 }
