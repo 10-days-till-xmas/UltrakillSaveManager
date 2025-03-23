@@ -12,10 +12,10 @@ public partial class OptionSelector
     /// </summary>
     /// <param name="useNumber">If true, the user can select an option by pressing the number key corresponding to the option</param>
     /// <param name="option">The index of the selected option</param>
-    public Delegate PrintOptionSelector(bool useNumber = true, bool allowEscapingFromRoot = false)
+    public T PrintOptionSelector<T>(bool useNumber = true, bool allowEscapingFromRoot = false)
     {
         bool leafSelected = false;
-        Delegate? selectedLeaf = null;
+        T? selectedLeaf = default;
         (bool Previous, bool Current) movedBack = (false, false);
         do
         {
@@ -37,10 +37,10 @@ public partial class OptionSelector
     /// <param name="selectedLeaf">
     /// A reference to the action associated with the selected leaf option.
     /// </param>
-    private void HandleKeyInputs(bool useNumber,
+    private void HandleKeyInputs<T>(bool useNumber,
                                  bool allowEscaping,
                                  ref bool leafSelected,
-                                 ref Delegate? selectedLeaf,
+                                 ref T? selectedLeaf,
                                  ref (bool Previous, bool Current) failedMoveBack)
     {
         ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);

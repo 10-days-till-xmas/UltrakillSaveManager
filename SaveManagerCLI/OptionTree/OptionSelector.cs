@@ -49,17 +49,17 @@ public partial class OptionSelector
         }
         CurrentRoot = CurrentOption;
     }
-    public bool Select(out Delegate? leaf_onExecute)
+    public bool Select<T>(out T? selectedLeaf)
     {
-        if (CurrentOption.Node is Leaf leaf)
+        if (CurrentOption.Node is Leaf<T> leaf)
         {
-            leaf_onExecute = leaf.OnExecute;
+            selectedLeaf = leaf.Value;
             return true;
         }
         CurrentRoot = CurrentOption;
         CurrentOption = CurrentRoot.Children[0];
         CurrentRoot.isRoot = true;
-        leaf_onExecute = null;
+        selectedLeaf = default;
         return false;
     }
 
