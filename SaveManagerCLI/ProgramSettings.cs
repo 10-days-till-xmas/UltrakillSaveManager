@@ -1,4 +1,4 @@
-using SaveManagerCLI.OptionTree;
+﻿using SaveManagerCLI.OptionTree;
 using System.Drawing;
 
 namespace SaveManagerCLI;
@@ -8,16 +8,15 @@ internal static class ProgramSettings
     public static Branch Branch = new("Settings",
         new Leaf("Change Save Directory", PromptToChangeSaveDirectory),
         new Leaf("Change Assembly Path", PromptToChangeAssemblyPath),
-        new Leaf("Change Game Directory", PromptToChangeGameDirectory),
-        new Leaf("Go Back", () => { })
+        new Leaf("Change Game Directory", PromptToChangeGameDirectory)
     );
 
     public static void GameDir(string gameDir)
     {
-        SaveFolderDir = Path.Join(gameDir, "Saves");
+        SaveDirectory = Path.Join(gameDir, "Saves");
         AssemblyPath = Path.Join(gameDir, "ULTRAKILL_Data", "Managed", "Assembly-CSharp.dll");
     }
-        public static string SaveFolderDir { get; set; } = @"C:\Program Files (x86)\Steam\steamapps\common\ULTRAKILL\Saves";
+        public static string SaveDirectory { get; set; } = @"C:\Program Files (x86)\Steam\steamapps\common\ULTRAKILL\Saves";
     /// <summary>
     /// Used just in case the assembly path can't be resolved on its own
     /// </summary>
@@ -31,9 +30,9 @@ internal static class ProgramSettings
     }
     internal static void PromptToChangeSaveDirectory()
     {
-        string saveFolderDir = SaveFolderDir;
+        string saveFolderDir = SaveDirectory;
         PromptToChangeString(ref saveFolderDir, "SaveData Folder Directory");
-        SaveFolderDir = saveFolderDir;
+        SaveDirectory = saveFolderDir;
     }
     internal static void PromptToChangeAssemblyPath()
     {
