@@ -1,4 +1,4 @@
-﻿namespace SaveManagerCLI.MenuTools.OptionTree;
+﻿namespace SaveManagerCLI.OptionTree;
 
 public abstract class Node(string name)
 {

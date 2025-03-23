@@ -1,4 +1,4 @@
-﻿namespace SaveManagerCLI.MenuTools.OptionTree;
+﻿namespace SaveManagerCLI.OptionTree;
 
 public class Option
 {
@@ -8,7 +8,7 @@ public class Option
     {
         get
         {
-            string indentation = new(' ', (depth * 4) - 2);
+            string indentation = new(' ', depth * 4 - 2);
             string prefix;
             if (!HasChildren)
             {

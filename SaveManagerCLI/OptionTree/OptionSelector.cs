@@ -1,4 +1,4 @@
-﻿namespace SaveManagerCLI.MenuTools.OptionTree;
+﻿namespace SaveManagerCLI.OptionTree;
 
 /// <summary>
 /// Class to handle selecting options from an <see cref="Option"/> tree

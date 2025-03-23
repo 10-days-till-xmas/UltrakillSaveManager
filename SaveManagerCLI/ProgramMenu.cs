@@ -1,4 +1,4 @@
-﻿using SaveManagerCLI.MenuTools.OptionTree;
+﻿using SaveManagerCLI.OptionTree;
 using UltrakillSaveManager.SaveFile;
 
 namespace SaveManagerCLI;
