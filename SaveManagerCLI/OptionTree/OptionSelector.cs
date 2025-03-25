@@ -15,12 +15,15 @@ public partial class OptionSelector
 
     public Option[] LocalOptions => CurrentRoot.Children.ToArray();
 
+    // TODO: Use this and provide it for each option, so it can all remain collapsible even when going deeper
+    public Option[] VisibleLocalOptions => LocalOptions.Limit(LocalCurrentIndex, 4).ToArray();
+
     public Option[] VisibleOptions => GetVisibleOptions(globalRoot);
 
     private static Option[] GetVisibleOptions(Option root)
     {
         List<Option> visibleOptions = [];
-        foreach (var option in root.Children)
+        foreach (var option in root.Children) // use LINQ to only select the middle few options
         {
             visibleOptions.Add(option);
             if (option.isRoot)
@@ -40,15 +43,6 @@ public partial class OptionSelector
         CurrentOption = globalRoot.Children[0];
     }
 
-    public void SelectAndExecute()
-    {
-        if (CurrentOption.Node is Leaf leaf)
-        {
-            leaf.OnExecute.DynamicInvoke(); // Not sure if this is a good idea
-            return;
-        }
-        CurrentRoot = CurrentOption;
-    }
     public bool Select<T>(out T? selectedLeaf)
     {
         if (CurrentOption.Node is Leaf<T> leaf)

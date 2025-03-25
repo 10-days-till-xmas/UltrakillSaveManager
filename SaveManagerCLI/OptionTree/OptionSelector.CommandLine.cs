@@ -122,36 +122,46 @@ public partial class OptionSelector
         ConsoleUtils.ClearLines(ConsoleLine, messageLine - 1);
         Console.CursorTop = ConsoleLine;
         Console.CursorLeft = 0;
-        
-        for (int i = 0; i < VisibleOptions.Length; i++)
+
+        int visualIndex = 1;
+        Range range = MathUtils.BoundedRange(LocalOptions.Length, LocalCurrentIndex, 4);
+        int startHideCount = range.Start.Value;
+        int endHideCount = LocalOptions.Length - range.End.Value;
+
+        foreach (var visibleOption in VisibleOptions)
         {
-            var index = Array.IndexOf(LocalOptions, VisibleOptions[i]);
-            if (VisibleOptions[i] == CurrentOption)
+            var index = Array.IndexOf(LocalOptions, visibleOption);
+            if (visibleOption == CurrentOption)
             {
                 ConsoleUtils.ClearLine();
                 Console.BackgroundColor = selected ? ConsoleColor.Green : ConsoleColor.Gray;
                 Console.ForegroundColor = ConsoleColor.Black;
-                string ansiColor = selected ? ConsoleUtils.CustomColor(0x0a, 0x5a, 0x0a) : "";
-                
-                Console.WriteLine($"{ansiColor}> {index + 1}┃{VisibleOptions[i]}");
+                string ansiColor = selected ? ConsoleUtils.CustomColor("ff" + "0A5A0A") : "";
+
+                Console.WriteLine($"{ansiColor}> {visualIndex++}┃{visibleOption}");
                 Console.ResetColor();
             }
-            else
+            else if (index == -1)
             {
-                if (index == -1)
-                {
-                    ConsoleUtils.ClearLine();
-                    Console.Write("   ");
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.Write("│");
-                    Console.ResetColor();
-                    Console.WriteLine(VisibleOptions[i]);
-                }
-                else
-                {
-                    ConsoleUtils.ClearLine();
-                    Console.WriteLine($"  {index + 1}┃{VisibleOptions[i]}");
-                }
+                ConsoleUtils.ClearLine();
+                Console.Write("   ");
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.Write("│");
+                Console.ResetColor();
+                Console.WriteLine(visibleOption);
+            }
+            else if (range.Contains(index))
+            {
+                ConsoleUtils.ClearLine();
+                Console.WriteLine($"  {visualIndex++}┃{visibleOption}");
+            }
+            else if (index == range.Start.Value - 1)
+            {
+                Console.WriteLine($"Collapsed {startHideCount} options");
+            }
+            else if (index == range.End.Value)
+            {
+                Console.WriteLine($"Collapsed {endHideCount} options");
             }
         }
         messageLine = Console.CursorTop;
