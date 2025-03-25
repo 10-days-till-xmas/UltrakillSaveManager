@@ -4,6 +4,10 @@ namespace SaveManagerCLI;
 
 public static class ConsoleUtils
 {
+    public static string CustomColor(string colorName)
+    {
+        return CustomColor(Color.FromName(colorName));
+    }
     public static string CustomColor(Color color)
     {
         return $"\u001b[38;2;{color.R};{color.G};{color.B}m";
@@ -17,11 +21,6 @@ public static class ConsoleUtils
     {
         return $"{CustomColor(color)}{text}{ResetCustomColor()}";
     }
-    public static string ColoredString(string text, byte red, byte green, byte blue)
-    {
-        return $"{CustomColor(red, green, blue)}{text}{ResetCustomColor()}";
-    }
-
     public static string ResetCustomColor()
     {
         return "\u001b[0m";
@@ -32,15 +31,15 @@ public static class ConsoleUtils
         Console.WriteLine("Press Enter to continue...");
         do
         {
-            
+
         } while (Console.ReadKey(intercept: true).Key != ConsoleKey.Enter);
     }
-
     public static void WaitForKeyPress()
     {
         Console.WriteLine("Press any key to continue...");
         Console.ReadKey(intercept: true);
     }
+
     public static void Warn(object? message)
     {
         Console.ForegroundColor = ConsoleColor.Yellow;

@@ -48,7 +48,7 @@ internal class SimpleDirectoryExplorer
         Option root = new(explorer.rootBranch);
         OptionSelector selector = new(root);
         Console.Clear();
-        Console.ForegroundColor = ConsoleColor.Gray; 
+        Console.ForegroundColor = ConsoleColor.Gray;
         Console.WriteLine(root.Name);
         Console.ResetColor();
         FileInfo selectedSave;
@@ -70,8 +70,8 @@ internal class SimpleDirectoryExplorer
             --Console.CursorTop;
             Console.ResetColor();
         } while (true);
-        
-        
+
+
         SaveNavigator navigator = new(selectedSave);
         navigator.PrintSaveData();
         Console.ReadKey(true);

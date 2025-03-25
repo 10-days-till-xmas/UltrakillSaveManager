@@ -58,7 +58,7 @@ public class Option
         Children = node switch
         {
             IBranch branch => (from child in branch.Children
-                              select new Option(child, this)).ToList(),
+                               select new Option(child, this)).ToList(),
             ILeaf => [],
             _ => throw new ArgumentException("Node must be a Branch or a Leaf"),
         };

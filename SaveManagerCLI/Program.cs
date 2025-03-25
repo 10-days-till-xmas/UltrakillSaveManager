@@ -1,11 +1,10 @@
-﻿using SaveManagerCLI.OptionTree;
-using System.Text;
+﻿using SaveManagerCLI;
+using SaveManagerCLI.OptionTree;
 using SaveManagerCLI.SaveManipulation;
-using SaveManagerCLI;
+using System.Text;
 
 Console.OutputEncoding = Encoding.UTF8;
 Console.Title = "Save Manager CLI";
-
 
 Branch MainMenu = new("Main SaveMenu",
     new Leaf<Action>("Modify Saves", SimpleDirectoryExplorer.PrintDirectoryTree),

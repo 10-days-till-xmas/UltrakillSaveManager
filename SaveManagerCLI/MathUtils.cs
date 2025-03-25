@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SaveManagerCLI;
+﻿namespace SaveManagerCLI;
 
 internal static class MathUtils
 {
@@ -28,7 +26,7 @@ internal static class MathUtils
 
         int lowerBoundRaw = index - radius; // inclusive
         int upperBoundRaw = index + radius + 1; // exclusive, so needs to be 1 bigger
-        
+
         if (lowerBoundRaw < 0)
         {
             int error = 0 - lowerBoundRaw;
