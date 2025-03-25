@@ -22,15 +22,23 @@ internal class SimpleDirectoryExplorer
     public static Node[] CreateNodeTree(DirectoryInfo directory)
     {
         List<Node> nodes = [];
-        foreach (var file in directory.GetFiles())
+
+        foreach (var fileDirs in directory.GetFileSystemInfos())
         {
-            nodes.Add(new Leaf<FileInfo>(file.Name, file));
+            switch (fileDirs)
+            {
+                case FileInfo file:
+                    nodes.Add(new Leaf<FileInfo>(file.Name, file));
+                    break;
+                case DirectoryInfo subDir:
+                    Node[] dirChildren = CreateNodeTree(subDir);
+                    nodes.Add(new Branch<DirectoryInfo>(subDir.Name, subDir, dirChildren));
+                    break;
+                default:
+                    throw new NotSupportedException("Unsupported FileSystemInfo type");
+            }
         }
-        foreach (var subDir in directory.GetDirectories())
-        {
-            Node[] dirChildren = CreateNodeTree(subDir);
-            nodes.Add(new Branch<DirectoryInfo>(subDir.Name, subDir, dirChildren));
-        }
+
         return nodes.ToArray();
     }
 
