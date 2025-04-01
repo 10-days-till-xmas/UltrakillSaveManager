@@ -57,23 +57,10 @@ public class Option
 
         Children = node switch
         {
-            IBranch branch => (from child in branch.Children
-                               select new Option(child, this)).ToList(),
+            IBranch branch => branch.Children.Select(child => new Option(child, this)).ToList(),
             ILeaf => [],
             _ => throw new ArgumentException("Node must be a Branch or a Leaf"),
         };
-    }
-
-    public Option[] InstantiateChildren()
-    {
-        if (Node is IBranch branch)
-        {
-            return branch.Children.Select(child => new Option(child, this)).ToArray();
-        }
-        else
-        {
-            return [];
-        }
     }
 
     public override string ToString()
