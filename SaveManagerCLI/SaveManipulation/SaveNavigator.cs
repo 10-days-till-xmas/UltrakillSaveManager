@@ -1,11 +1,13 @@
-﻿using UltrakillSaveManager.SaveFile;
+﻿using SaveManagerCLI.SaveManipulation.ClassManipulation;
+using UltrakillSaveManager.SaveFile;
 
 namespace SaveManagerCLI.SaveManipulation;
 
 public class SaveNavigator
 {
     private readonly FileInfo saveFileInfo;
-    private readonly TypedSaveFile saveFile;
+    internal readonly TypedSaveFile saveFile;
+
     public SaveNavigator(FileInfo saveFile)
     {
         saveFileInfo = saveFile;
@@ -23,9 +25,18 @@ public class SaveNavigator
         Console.ForegroundColor = ConsoleColor.Gray;
         Console.WriteLine(saveFileInfo.Name);
         Console.ResetColor();
-        foreach (var field in saveFile.GetFields())
+        var saveViewer = new ClassViewer(saveFileInfo.Name, saveFile.SaveData, saveFile.Type);
+        bool repeat = true;
+        do
         {
-            Console.WriteLine($"{field.Name}: {field.GetValue(saveFile.SaveData)}");
-        }
+            var output = saveViewer.PrintOptions();
+            Console.Clear();
+            if (output is Wrapper outWrapper)
+            {
+                var getOut = outWrapper.Getter();
+            }
+            else
+                repeat = false;
+        } while (repeat);
     }
 }
