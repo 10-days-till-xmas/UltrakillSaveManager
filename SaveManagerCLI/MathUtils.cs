@@ -2,6 +2,24 @@
 
 internal static class MathUtils
 {
+    internal enum BoundOptions
+    {
+        /// <summary>
+        /// The specified index is the lower bound
+        /// </summary>
+        Lower,
+
+        /// <summary>
+        /// The specified index is the center of the range, rounded down
+        /// </summary>
+        Center,
+
+        /// <summary>
+        /// The specified index is the upper bound
+        /// </summary>
+        Upper
+    }
+
     /// <summary>
     /// Limits an <see cref="Array"/> to a smaller array, centred around <paramref name="index"/>, with <paramref name="radius"/>
     /// </summary>
@@ -15,6 +33,55 @@ internal static class MathUtils
         // TODO: write better documentation
         var range = BoundedRange(array.Length, index, radius);
         return array[range];
+    }
+
+    public static bool TryGetIndexOf<T>(this List<T> array, T item, out int index)
+    {
+        index = array.IndexOf(item);
+        return index != -1;
+    }
+
+    public static Range BoundedRange(int length, int size, int index, BoundOptions boundOptions)
+    {
+        throw new NotImplementedException();
+
+        if (index > length - 1)
+            throw new ArgumentOutOfRangeException(nameof(index));
+        if (size > length - 1)
+            return 0..length;
+
+        int lowerBound = index;
+        int upperBound = index;
+        switch (boundOptions)
+        {
+            case BoundOptions.Lower:
+                upperBound += size;
+                break;
+
+            case BoundOptions.Center:
+                lowerBound -= size / 2;
+                upperBound += size / 2 + 1;
+                break;
+
+            case BoundOptions.Upper:
+                lowerBound -= size;
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(boundOptions));
+        }
+        if (lowerBound < 0)
+        {
+            int error = 0 - lowerBound;
+            upperBound += error;
+            lowerBound += error;
+        }
+        else if (upperBound > length)
+        {
+            int error = upperBound - length;
+            lowerBound -= error;
+            upperBound -= error;
+        }
     }
 
     public static Range BoundedRange(int length, int index, int radius)

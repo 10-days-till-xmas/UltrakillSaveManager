@@ -8,19 +8,23 @@ public static class ConsoleUtils
     {
         return CustomColor(Color.FromName(colorName));
     }
+
     public static string CustomColor(Color color)
     {
         return $"\u001b[38;2;{color.R};{color.G};{color.B}m";
     }
+
     public static string CustomColor(byte red, byte green, byte blue)
     {
         Color color = Color.FromArgb(red, green, blue);
         return CustomColor(color);
     }
+
     public static string ColoredString(string text, Color color)
     {
         return $"{CustomColor(color)}{text}{ResetCustomColor()}";
     }
+
     public static string ResetCustomColor()
     {
         return "\u001b[0m";
@@ -31,9 +35,9 @@ public static class ConsoleUtils
         Console.WriteLine("Press Enter to continue...");
         do
         {
-
         } while (Console.ReadKey(intercept: true).Key != ConsoleKey.Enter);
     }
+
     public static void WaitForKeyPress()
     {
         Console.WriteLine("Press any key to continue...");
@@ -46,18 +50,21 @@ public static class ConsoleUtils
         Console.WriteLine(message);
         Console.ResetColor();
     }
+
     public static void Error(object? message)
     {
         Console.ForegroundColor = ConsoleColor.Red;
         Console.WriteLine(message);
         Console.ResetColor();
     }
+
     public static void Success(object? message)
     {
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine(message);
         Console.ResetColor();
     }
+
     public static void Info(object? message)
     {
         Console.ForegroundColor = ConsoleColor.Gray;
@@ -72,10 +79,12 @@ public static class ConsoleUtils
         Console.Write(new string(' ', Console.WindowWidth));
         Console.SetCursorPosition(0, oldTop);
     }
+
     public static void ClearLines(int end)
     {
         ClearLines(Console.CursorTop, end);
     }
+
     public static void ClearLines(int start, int end)
     {
         for (int i = start; i <= end; i++)

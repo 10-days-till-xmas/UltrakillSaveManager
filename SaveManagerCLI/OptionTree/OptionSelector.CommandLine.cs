@@ -5,20 +5,25 @@ public partial class OptionSelector
     /// <summary>
     /// This is the line where the LocalOptions will be displayed
     /// </summary>
-    readonly int ConsoleLine = Console.CursorTop;
+    private readonly int ConsoleLine = Console.CursorTop;
 
     /// <summary>
     /// Displays a list of LocalOptions and allows the user to select one by using the arrow keys or the number keys
     /// </summary>
     /// <param name="useNumber">If true, the user can select an option by pressing the number key corresponding to the option</param>
     /// <param name="option">The index of the selected option</param>
-    public T PrintOptionSelector<T>(bool useNumber = true, bool allowEscapingFromRoot = false)
+    public T PrintOptionSelector<T>(bool useNumber = true, bool allowEscapingFromRoot = false,
+        bool clearOnReset = true)
     {
         bool leafSelected = false;
         T? selectedLeaf = default;
         (bool Previous, bool Current) movedBack = (false, false);
         do
         {
+            if (clearOnReset)
+            {
+                Console.Clear();
+            }
             PrintOptions();
             HandleKeyInputs(useNumber, allowEscapingFromRoot, ref leafSelected, ref selectedLeaf, ref movedBack);
         } while (!leafSelected);
@@ -38,10 +43,10 @@ public partial class OptionSelector
     /// A reference to the action associated with the selected leaf option.
     /// </param>
     private void HandleKeyInputs<T>(bool useNumber,
-                                 bool allowEscaping,
-                                 ref bool leafSelected,
-                                 ref T? selectedLeaf,
-                                 ref (bool Previous, bool Current) failedMoveBack)
+                                    bool allowEscaping,
+                                    ref bool leafSelected,
+                                    ref T? selectedLeaf,
+                                    ref (bool Previous, bool Current) failedMoveBack)
     {
         ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
         failedMoveBack.Previous = failedMoveBack.Current;
@@ -54,31 +59,46 @@ public partial class OptionSelector
             case ConsoleKey.Enter when keyInfo.Modifiers.HasFlag(ConsoleModifiers.Shift):
                 ConsoleUtils.ClearLine(messageLine);
                 failedMoveBack.Current = !GoBack();
-                if (!allowEscaping & failedMoveBack.Current)
+
+                if (!failedMoveBack.Current)
+                {
+                    // do nothing, it moved back successfully
+                }
+                else if (!allowEscaping)
+                {
+                    ConsoleUtils.ClearLine();
+                    messageLine = Console.CursorTop;
+                    ConsoleUtils.Error("Cannot go back from here.");
+                    --Console.CursorTop;
+                }
+                else if (failedMoveBack.Current && !failedMoveBack.Previous)
                 {
                     ConsoleUtils.Warn("Cannot go back from here.");
                     --Console.CursorTop;
-                    break;
                 }
-
-                if (failedMoveBack.Current && !failedMoveBack.Previous)
+                else if (failedMoveBack.Previous)
+                {
+                    ++Console.CursorTop;
+                    leafSelected = true;
+                    selectedLeaf = default;
+                }
+                else
                 {
                     ConsoleUtils.ClearLine();
                     messageLine = Console.CursorTop;
                     ConsoleUtils.Warn($"Press {keyInfo.Key} again to return to the previous menu.");
                     --Console.CursorTop;
                 }
-                else if (failedMoveBack.Previous && failedMoveBack.Current)
-                {
-                    ++Console.CursorTop;
-                    leafSelected = true;
-                    selectedLeaf = default;
-                }
+
                 break;
 
             case ConsoleKey.Enter:
             case ConsoleKey.RightArrow:
                 ConsoleUtils.ClearLine(messageLine);
+                if (CurrentOption.Children.Count == 0)
+                {
+                    ConsoleUtils.Error("No options available");
+                }
                 PrintOptions(selected: true);
                 leafSelected = Select(out selectedLeaf);
                 break;
@@ -117,6 +137,7 @@ public partial class OptionSelector
     }
 
     private int messageLine;
+
     private void PrintOptions(bool selected = false)
     {
         ConsoleUtils.ClearLines(ConsoleLine, messageLine - 1);
@@ -128,27 +149,19 @@ public partial class OptionSelector
         int startHideCount = range.Start.Value;
         int endHideCount = LocalOptions.Length - range.End.Value;
 
-        foreach (var visibleOption in VisibleOptions)
+        foreach (var (visibleOption, depth) in VisibleOptions)
         {
             var index = Array.IndexOf(LocalOptions, visibleOption);
             if (visibleOption == CurrentOption)
             {
                 ConsoleUtils.ClearLine();
-                Console.BackgroundColor = selected ? ConsoleColor.Green : ConsoleColor.Gray;
-                Console.ForegroundColor = ConsoleColor.Black;
-                string ansiColor = selected ? ConsoleUtils.CustomColor("ff" + "0A5A0A") : "";
-
-                Console.WriteLine($"{ansiColor}> {visualIndex++}┃{visibleOption}");
-                Console.ResetColor();
+                PrintSelectedOption(selected, ref visualIndex, visibleOption);
             }
             else if (index == -1)
             {
                 ConsoleUtils.ClearLine();
-                Console.Write("   ");
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.Write("│");
-                Console.ResetColor();
-                Console.WriteLine(visibleOption);
+                if (visibleOption.IsVisible)
+                    PrintUpperOptions(visibleOption, depth);
             }
             else if (range.Contains(index))
             {
@@ -163,7 +176,27 @@ public partial class OptionSelector
             {
                 Console.WriteLine($"Collapsed {endHideCount} options");
             }
+            // else dont print
         }
         messageLine = Console.CursorTop;
+
+        static void PrintSelectedOption(bool selected, ref int visualIndex, Option visibleOption)
+        {
+            Console.BackgroundColor = selected ? ConsoleColor.Green : ConsoleColor.Gray;
+            Console.ForegroundColor = ConsoleColor.Black;
+            string ansiColor = selected ? ConsoleUtils.CustomColor("ff" + "0A5A0A") : "";
+
+            Console.WriteLine($"{ansiColor}> {visualIndex++}┃{visibleOption}");
+            Console.ResetColor();
+        }
+
+        static void PrintUpperOptions(Option visibleOption, int depth)
+        {
+            Console.Write("   ");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write("│");
+            Console.ResetColor();
+            Console.WriteLine(visibleOption);
+        }
     }
 }

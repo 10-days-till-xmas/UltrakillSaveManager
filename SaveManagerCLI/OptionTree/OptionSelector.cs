@@ -18,17 +18,42 @@ public partial class OptionSelector
     // TODO: Use this and provide it for each option, so it can all remain collapsible even when going deeper
     public Option[] VisibleLocalOptions => LocalOptions.Limit(LocalCurrentIndex, 4).ToArray();
 
-    public Option[] VisibleOptions => GetVisibleOptions(globalRoot);
+    public (Option Option, int depth)[] VisibleOptions => GetVisibleOptions(globalRoot, 0);
 
-    private static Option[] GetVisibleOptions(Option root)
+    private static (Option Option, int depth)[] GetVisibleOptions(Option root, int depth)
+    {
+        List<(Option Option, int depth)> visibleOptions = [];
+        foreach (var (option, index) in root.Children.Select((item, index) => (item, index))) // use LINQ to only select the middle few options
+        {
+            if (root.Children.selectedIndex is not null)
+            {
+            }
+            visibleOptions.Add((option, depth));
+            if (option.IsRoot)
+            {
+                visibleOptions.AddRange(GetVisibleOptions(option, depth + 1));
+            }
+        }
+        return visibleOptions.ToArray();
+    }
+
+    internal static Option[] Test1(Option root)
     {
         List<Option> visibleOptions = [];
-        foreach (var option in root.Children) // use LINQ to only select the middle few options
+        Option currentRoot = root;
+        var looper = new Stack<Option>(root.Children);
+
+        while (looper.Count > 0)
         {
-            visibleOptions.Add(option);
-            if (option.isRoot)
+            var currentOption = looper.Pop();
+
+            visibleOptions.Add(currentOption);
+            if (currentOption.IsRoot)
             {
-                visibleOptions.AddRange(GetVisibleOptions(option));
+                foreach (var item in currentOption.Children.Reverse<Option>())
+                {
+                    looper.Push(item);
+                }
             }
         }
         return visibleOptions.ToArray();
@@ -43,25 +68,46 @@ public partial class OptionSelector
         CurrentOption = globalRoot.Children[0];
     }
 
+    /// <summary>
+    /// Selects the current Option, where if its a branch, itll expand, if not itll return the value
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="selectedLeaf"></param>
+    /// <returns></returns>
     public bool Select<T>(out T? selectedLeaf)
     {
-        if (CurrentOption.Node is Leaf<T> leaf)
+        dynamic currentOptionNode = CurrentOption.Node;
+
+        if (currentOptionNode is ILeaf)
         {
-            selectedLeaf = leaf.Value;
+            selectedLeaf = currentOptionNode.Value;
+
             return true;
         }
+        if (CurrentOption.Children.Count == 0)
+        {
+            selectedLeaf = default;
+            // Add some sort of error message here
+            return false;
+        }
+        CurrentOption.Parent!.ChildRoot = CurrentOption;
         CurrentRoot = CurrentOption;
         CurrentOption = CurrentRoot.Children[0];
-        CurrentRoot.isRoot = true;
+        CurrentRoot.MakeRootForce();
+        CurrentRoot.Parent.Children.SelectedOption = CurrentRoot;
         selectedLeaf = default;
         return false;
     }
 
+    /// <summary>
+    /// Returns to the previous option in the tree, if possible.
+    /// </summary>
+    /// <returns>Whether or not it moved back successfully</returns>
     public bool GoBack()
     {
         if (CurrentRoot != globalRoot)
         {
-            CurrentRoot.isRoot = false;
+            CurrentRoot.MakeNotRoot();
             CurrentOption = CurrentRoot;
             CurrentRoot = CurrentOption.Parent!;
             return true;
@@ -69,15 +115,23 @@ public partial class OptionSelector
         return false;
     }
 
+    /// <summary>
+    /// Moves to the option at the given index in the current options list.
+    /// </summary>
+    /// <param name="index">The desired index to move to</param>
+    /// <exception cref="ArgumentOutOfRangeException">If the index is greater than the length of <see cref="LocalOptions"/></exception>
     public void GoToOption(int index)
     {
         if (index < 0 || index >= LocalOptions.Length)
         {
-            throw new ArgumentOutOfRangeException(nameof(index));
+            throw new ArgumentOutOfRangeException(nameof(index)); // Do I even have to bother with this?
         }
         CurrentOption = LocalOptions[index];
     }
 
+    /// <summary>
+    /// Move up in the list of options, wrapping around to the last option if at the top.
+    /// </summary>
     public void MoveUp()
     {
         if (LocalCurrentIndex == 0)
@@ -90,6 +144,9 @@ public partial class OptionSelector
         }
     }
 
+    /// <summary>
+    /// Move down in the list of options, wrapping around to the first option if at the bottom.
+    /// </summary>
     public void MoveDown()
     {
         if (LocalCurrentIndex == LocalOptions.Length - 1)
