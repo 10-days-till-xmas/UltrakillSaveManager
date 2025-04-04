@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>13.0</LangVersion>
+    <Authors>10_days_till_xmas</Authors>
   </PropertyGroup>
 
   <ItemGroup>

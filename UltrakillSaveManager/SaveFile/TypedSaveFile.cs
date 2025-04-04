@@ -2,6 +2,7 @@
 using System.Reflection;
 
 namespace UltrakillSaveManager.SaveFile;
+
 public class TypedSaveFile(string path, Type type, object? saveData = null) : SaveFile(path, saveData)
 {
     public Type Type = type;
@@ -19,6 +20,7 @@ public class TypedSaveFile(string path, Type type, object? saveData = null) : Sa
         value = (U)field.GetValue(SaveData);
         return true;
     }
+
     public bool SetField<U>(string fieldName, U value)
     {
         var field = Type.GetField(fieldName);
@@ -28,7 +30,6 @@ public class TypedSaveFile(string path, Type type, object? saveData = null) : Sa
         }
         field.SetValue(SaveData, value);
         return true;
-
     }
 
     public bool GetField(string fieldName, out FieldInfo fieldInfo)
@@ -38,8 +39,11 @@ public class TypedSaveFile(string path, Type type, object? saveData = null) : Sa
     }
 
     public FieldInfo[] GetFields() => Type.GetFields();
+
     public string[] GetFieldNames() => Array.ConvertAll(GetFields(), field => field.Name);
+
     public U GetFieldValue<U>(string fieldName) => (U)GetFieldValue(fieldName);
+
     public object GetFieldValue(string fieldName) => Type.GetField(fieldName).GetValue(SaveData);
 
     public static TypedSaveFile GetSaveFile(string path)
@@ -57,11 +61,13 @@ public class TypedSaveFile(string path, Type type, object? saveData = null) : Sa
         };
     }
 }
+
 public sealed class RankDataSaveFile(string path, object? saveData = null) : TypedSaveFile(path, typeof(RankData), saveData);
+
 public sealed class CyberRankDataSaveFile(string path, object? saveData = null) : TypedSaveFile(path, typeof(CyberRankData), saveData);
+
 public sealed class RankScoreDataSaveFile(string path, object? saveData = null) : TypedSaveFile(path, typeof(RankScoreData), saveData);
+
 public sealed class GameProgressDataSaveFile(string path, object? saveData = null) : TypedSaveFile(path, typeof(GameProgressData), saveData);
+
 public sealed class GameProgressMoneyAndGearSaveFile(string path, object? saveData = null) : TypedSaveFile(path, typeof(GameProgressMoneyAndGear), saveData);
-
-
-

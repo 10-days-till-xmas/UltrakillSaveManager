@@ -3,10 +3,12 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace UltrakillSaveManager.SaveFile;
+
 public partial class SaveFile
 {
     private object _saveData;
     private readonly string path;
+
     public object SaveData
     {
         get => _saveData;
@@ -23,6 +25,7 @@ public partial class SaveFile
         this.path = path;
         _saveData = saveData ?? Read(path) ?? throw new ArgumentException("SaveData File Not Found");
     }
+
     public void Write() => Write(path, _saveData);
 
     public static void Write(string path, object data)
@@ -41,6 +44,7 @@ public partial class SaveFile
             Console.WriteLine(exception);
         }
     }
+
     public static object? Read(string path)
     {
         if (!File.Exists(path))

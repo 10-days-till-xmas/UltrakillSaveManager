@@ -7,6 +7,7 @@ public partial class SaveFile<T> where T : class
 {
     private T save;
     private readonly string path;
+
     public T Save
     {
         get => save;
@@ -29,5 +30,6 @@ public partial class SaveFile<T> where T : class
         this.path = path;
         save = SaveFile.Read(path) as T ?? throw new ArgumentException("SaveData File Not Found");
     }
+
     public void Write() => SaveFile.Write(path, save);
 }

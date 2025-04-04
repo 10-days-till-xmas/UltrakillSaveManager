@@ -16,7 +16,9 @@ internal static class ProgramSettings
         SaveDirectory = Path.Join(gameDir, "Saves");
         AssemblyPath = Path.Join(gameDir, "ULTRAKILL_Data", "Managed", "Assembly-CSharp.dll");
     }
+
     public static string SaveDirectory { get; set; } = @"C:\Program Files (x86)\Steam\steamapps\common\ULTRAKILL\Saves";
+
     /// <summary>
     /// Used just in case the assembly path can't be resolved on its own
     /// </summary>
@@ -28,12 +30,14 @@ internal static class ProgramSettings
         PromptToChangeString(ref gameDir, "Game Directory");
         GameDir(gameDir);
     }
+
     internal static void PromptToChangeSaveDirectory()
     {
         string saveFolderDir = SaveDirectory;
         PromptToChangeString(ref saveFolderDir, "SaveData Folder Directory");
         SaveDirectory = saveFolderDir;
     }
+
     internal static void PromptToChangeAssemblyPath()
     {
         string assemblyPath = AssemblyPath;

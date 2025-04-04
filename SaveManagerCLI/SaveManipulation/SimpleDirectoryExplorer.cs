@@ -12,6 +12,7 @@ internal class SimpleDirectoryExplorer
     }
 
     private readonly Branch<DirectoryInfo> rootBranch;
+
     public SimpleDirectoryExplorer(string rootDir)
     {
         DirectoryInfo directory = new(rootDir);
@@ -30,10 +31,12 @@ internal class SimpleDirectoryExplorer
                 case FileInfo file:
                     nodes.Add(new Leaf<FileInfo>(file.Name, file));
                     break;
+
                 case DirectoryInfo subDir:
                     Node[] dirChildren = CreateNodeTree(subDir);
                     nodes.Add(new Branch<DirectoryInfo>(subDir.Name, subDir, dirChildren));
                     break;
+
                 default:
                     throw new NotSupportedException("Unsupported FileSystemInfo type");
             }
@@ -71,9 +74,7 @@ internal class SimpleDirectoryExplorer
             Console.ResetColor();
         } while (true);
 
-
         SaveNavigator navigator = new(selectedSave);
         navigator.PrintSaveData();
-        Console.ReadKey(true);
     }
 }
