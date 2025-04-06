@@ -4,14 +4,16 @@ using SaveManagerCLI.SaveManipulation;
 using System.Text;
 
 namespace SaveManagerCLI;
+
 internal class Program
 {
-    internal readonly static Branch MainMenu = new("Main SaveMenu",
+    internal static readonly Branch MainMenu = new("Main SaveMenu",
                                                    new Leaf<Action>("Modify Saves", SimpleDirectoryExplorer.PrintDirectoryTree),
                                                    ProgramSettings.Branch,
                                                    new Leaf<Action>("Exit", () => Environment.Exit(0)));
 
-    internal readonly static OptionSelector mainMenuSelector = new(new Option(MainMenu));
+    internal static readonly OptionSelector mainMenuSelector = new(new Option(MainMenu));
+
     private static void Main()
     {
         Console.OutputEncoding = Encoding.UTF8;

@@ -98,7 +98,6 @@ internal class Wrapper
     /// <returns>A new <see cref="Wrapper"/> corresponding to <paramref name="array"/>[<paramref name="index"/>]</returns>
     public static ArrayItemWrapper CreateItem(string name, Array array, int index)
     {
-
         return ArrayItemWrapper.CreateArrayItemWrapper($"{name}[{index}]", array, index);
     }
 
