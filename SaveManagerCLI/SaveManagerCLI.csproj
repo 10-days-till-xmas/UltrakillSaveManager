@@ -7,6 +7,11 @@
     <Nullable>enable</Nullable>
     <LangVersion>13.0</LangVersion>
     <Authors>10_days_till_xmas</Authors>
+    <Title>Ultrakill Save Manager</Title>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <VersionSuffix>beta</VersionSuffix>
+    <PackageOutputPath>$(OutputPath)Package</PackageOutputPath>
+    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
   <ItemGroup>
