@@ -1,4 +1,5 @@
 ﻿using SaveManagerCLI.OptionTree;
+using SaveManagerCLI.OptionTree.ConsoleInterface;
 using SaveManagerCLI.SaveManipulation.ClassManipulation.ValueWrapper;
 
 namespace SaveManagerCLI.SaveManipulation.ClassManipulation;
@@ -25,7 +26,7 @@ internal class ClassViewer
         Console.WriteLine(rootName);
         // TODO: find a way to patch the names, so that it can display its type and value (if primitive), or array size
 
-        return selector.PrintOptionSelector<object>(true, true);
+        return ConsoleOptionSelector.PrintOptionSelector<object>(selector, true, true);
     }
 
     internal static Branch<object> MakeBranchFromClass(object obj, string? name = null)

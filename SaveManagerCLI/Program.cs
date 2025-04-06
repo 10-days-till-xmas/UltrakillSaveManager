@@ -1,4 +1,5 @@
 ﻿using SaveManagerCLI.OptionTree;
+using SaveManagerCLI.OptionTree.ConsoleInterface;
 using SaveManagerCLI.SaveManipulation;
 using System.Text;
 
@@ -24,7 +25,7 @@ internal class Program
         while (true)
         {
             Console.Clear();
-            Action onExecute = mainMenuSelector.PrintOptionSelector<Action>();
+            Action onExecute = ConsoleOptionSelector.PrintOptionSelector<Action>(mainMenuSelector);
             onExecute();
         }
     }

@@ -1,34 +1,64 @@
-﻿namespace SaveManagerCLI.OptionTree;
+﻿namespace SaveManagerCLI.OptionTree.ConsoleInterface;
 
-public partial class OptionSelector
+internal class ConsoleOptionSelector
 {
-    /// <summary>
-    /// This is the line where the LocalOptions will be displayed
-    /// </summary>
+    [Flags]
+    public enum PrintOptionFlags
+    {
+        None = 0,
+        PreClearConsole = 1, // TODO: Implement more options
+        Default = PreClearConsole
+    }
+
+    [Flags]
+    public enum InputHandlingFlags
+    {
+        None = 0,
+        AllowEscaping = 1,
+        UseNumber = 1 << 1,
+        Default = UseNumber
+    }
+
+    private OptionSelector OptionSelector { get; }
     private readonly int ConsoleLine = Console.CursorTop;
+    private int messageLine;
+    public ConsoleOptionSelector(OptionSelector optionSelector)
+    {
+        OptionSelector = optionSelector;
+    }
 
     /// <summary>
     /// Displays a list of LocalOptions and allows the user to select one by using the arrow keys or the number keys
     /// </summary>
-    /// <param name="useNumber">If true, the user can select an option by pressing the number key corresponding to the option</param>
-    /// <param name="option">The index of the selected option</param>
-    public T PrintOptionSelector<T>(bool useNumber = true, bool allowEscapingFromRoot = false,
-        bool clearOnReset = true)
+    /// <param name="printOptionFlags">A set of flags that determine how the options will be printed</param>
+    /// <param name="inputHandlingFlags">A set of flags that determines how the inputs will be handled</param>
+    public static T PrintOptionSelector<T>(OptionSelector optionSelector,
+                                           PrintOptionFlags printOptionFlags = PrintOptionFlags.Default,
+                                           InputHandlingFlags inputHandlingFlags = InputHandlingFlags.Default)
+    {
+        var OptionSelectorCLI = new ConsoleOptionSelector(optionSelector);
+        return OptionSelectorCLI.PrintOptionSelector<T>(printOptionFlags, inputHandlingFlags);
+    }
+
+    /// <summary>
+    /// Displays a list of LocalOptions and allows the user to select one by using the arrow keys or the number keys
+    /// </summary>
+    /// <param name="printOptionFlags">A set of flags that determine how the options will be printed</param>
+    /// <param name="inputHandlingFlags">A set of flags that determines how the inputs will be handled</param>
+    public T PrintOptionSelector<T>(PrintOptionFlags printOptionFlags = PrintOptionFlags.Default,
+                                    InputHandlingFlags inputHandlingFlags = InputHandlingFlags.Default)
     {
         bool leafSelected = false;
         T? selectedLeaf = default;
         (bool Previous, bool Current) movedBack = (false, false);
         do
         {
-            if (clearOnReset)
-            {
-                Console.Clear();
-            }
-            PrintOptions();
-            HandleKeyInputs(useNumber, allowEscapingFromRoot, ref leafSelected, ref selectedLeaf, ref movedBack);
+            PrintOptions(printOptionFlags);
+            HandleKeyInputs(ref leafSelected, ref selectedLeaf, ref movedBack, inputHandlingFlags);
         } while (!leafSelected);
         return selectedLeaf!;
     }
+    
 
     /// <summary>
     /// Processes console key inputs to navigate through the options and perform selection actions.
@@ -42,23 +72,25 @@ public partial class OptionSelector
     /// <param name="selectedLeaf">
     /// A reference to the action associated with the selected leaf option.
     /// </param>
-    private void HandleKeyInputs<T>(bool useNumber,
-                                    bool allowEscaping,
-                                    ref bool leafSelected,
+    private void HandleKeyInputs<T>(ref bool leafSelected,
                                     ref T? selectedLeaf,
-                                    ref (bool Previous, bool Current) failedMoveBack)
+                                    ref (bool Previous, bool Current) failedMoveBack,
+                                    InputHandlingFlags inputHandlingFlags)
     {
+        bool useNumber = inputHandlingFlags.HasFlag(InputHandlingFlags.UseNumber);
+        bool allowEscaping = inputHandlingFlags.HasFlag(InputHandlingFlags.AllowEscaping);
+
         ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
         failedMoveBack.Previous = failedMoveBack.Current;
         failedMoveBack.Current = false;
+        ConsoleUtils.ClearLine(messageLine);
         switch (keyInfo.Key)
         {
             case ConsoleKey.Backspace:
             case ConsoleKey.Escape:
             case ConsoleKey.LeftArrow:
             case ConsoleKey.Enter when keyInfo.Modifiers.HasFlag(ConsoleModifiers.Shift):
-                ConsoleUtils.ClearLine(messageLine);
-                failedMoveBack.Current = !GoBack();
+                failedMoveBack.Current = !OptionSelector.GoBack();
 
                 if (!failedMoveBack.Current)
                 {
@@ -66,14 +98,8 @@ public partial class OptionSelector
                 }
                 else if (!allowEscaping)
                 {
-                    ConsoleUtils.ClearLine();
                     messageLine = Console.CursorTop;
                     ConsoleUtils.Error("Cannot go back from here.");
-                    --Console.CursorTop;
-                }
-                else if (failedMoveBack.Current && !failedMoveBack.Previous)
-                {
-                    ConsoleUtils.Warn("Cannot go back from here.");
                     --Console.CursorTop;
                 }
                 else if (failedMoveBack.Previous)
@@ -95,38 +121,38 @@ public partial class OptionSelector
             case ConsoleKey.Enter:
             case ConsoleKey.RightArrow:
                 ConsoleUtils.ClearLine(messageLine);
-                if (CurrentOption.Children.Count == 0)
+                if (OptionSelector.CurrentOption.Children.Count == 0)
                 {
                     ConsoleUtils.Error("No options available");
                 }
-                PrintOptions(selected: true);
-                leafSelected = Select(out selectedLeaf);
+                PrintOptions(PrintOptionFlags.PreClearConsole, selected: true);
+                leafSelected = OptionSelector.Select(out selectedLeaf);
                 break;
 
             case ConsoleKey.UpArrow:
             case ConsoleKey.PageUp:
             case ConsoleKey.Tab when keyInfo.Modifiers.HasFlag(ConsoleModifiers.Shift):
-                MoveUp();
+                OptionSelector.MoveUp();
                 ConsoleUtils.ClearLine(messageLine);
                 break;
 
             case ConsoleKey.DownArrow:
             case ConsoleKey.PageDown:
             case ConsoleKey.Tab when !keyInfo.Modifiers.HasFlag(ConsoleModifiers.Shift):
-                MoveDown();
+                OptionSelector.MoveDown();
                 ConsoleUtils.ClearLine(messageLine);
                 break;
 
             case ConsoleKey key when useNumber && (
-            (ConsoleKey.NumPad1 <= key && key <= ConsoleKey.NumPad9) ||
-            (ConsoleKey.D1 <= key && key <= ConsoleKey.D9)):
+            ConsoleKey.NumPad1 <= key && key <= ConsoleKey.NumPad9 ||
+            ConsoleKey.D1 <= key && key <= ConsoleKey.D9):
                 int index;
                 index = key >= ConsoleKey.NumPad1 && keyInfo.Key <= ConsoleKey.NumPad9
                     ? keyInfo.Key - ConsoleKey.NumPad1
                     : keyInfo.Key - ConsoleKey.D1;
                 try
                 {
-                    GoToOption(index);
+                    OptionSelector.GoToOption(index);
                 }
                 catch (ArgumentOutOfRangeException)
                 {
@@ -136,23 +162,26 @@ public partial class OptionSelector
         }
     }
 
-    private int messageLine;
-
-    private void PrintOptions(bool selected = false)
+    
+    private void PrintOptions(PrintOptionFlags optionFlags, bool selected = false)
     {
+        if (optionFlags.HasFlag(PrintOptionFlags.PreClearConsole))
+        {
+            Console.Clear();
+        }
         ConsoleUtils.ClearLines(ConsoleLine, messageLine - 1);
         Console.CursorTop = ConsoleLine;
         Console.CursorLeft = 0;
 
         int visualIndex = 1;
-        Range range = MathUtils.BoundedRange(LocalOptions.Length, LocalCurrentIndex, 4);
+        Range range = MathUtils.BoundedRange(OptionSelector.LocalOptions.Length, OptionSelector.LocalCurrentIndex, 4);
         int startHideCount = range.Start.Value;
-        int endHideCount = LocalOptions.Length - range.End.Value;
+        int endHideCount = OptionSelector.LocalOptions.Length - range.End.Value;
 
-        foreach (var (visibleOption, depth) in VisibleOptions)
+        foreach (var (visibleOption, depth) in OptionSelector.VisibleOptions)
         {
-            var index = Array.IndexOf(LocalOptions, visibleOption);
-            if (visibleOption == CurrentOption)
+            var index = Array.IndexOf(OptionSelector.LocalOptions, visibleOption);
+            if (visibleOption == OptionSelector.CurrentOption)
             {
                 ConsoleUtils.ClearLine();
                 PrintSelectedOption(selected, ref visualIndex, visibleOption);
@@ -161,7 +190,7 @@ public partial class OptionSelector
             {
                 ConsoleUtils.ClearLine();
                 if (visibleOption.IsVisible)
-                    PrintUpperOptions(visibleOption, depth);
+                    PrintUpperOptions(visibleOption);
             }
             else if (range.Contains(index))
             {
@@ -190,7 +219,7 @@ public partial class OptionSelector
             Console.ResetColor();
         }
 
-        static void PrintUpperOptions(Option visibleOption, int depth)
+        static void PrintUpperOptions(Option visibleOption)
         {
             Console.Write("   ");
             Console.ForegroundColor = ConsoleColor.DarkGray;

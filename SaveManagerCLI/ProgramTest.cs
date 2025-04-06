@@ -1,4 +1,5 @@
 ﻿using SaveManagerCLI.OptionTree;
+using SaveManagerCLI.OptionTree.ConsoleInterface;
 
 namespace SaveManagerCLI;
 
@@ -44,7 +45,7 @@ internal static class ProgramTest
     {
         Console.Clear();
         //Action onExecute = baseSelector.PrintOptionSelector<Action>();
-        Action onExecute = testSelector.PrintOptionSelector<Action>();
+        Action onExecute = ConsoleOptionSelector.PrintOptionSelector<Action>(testSelector);
         onExecute();
     }
 }

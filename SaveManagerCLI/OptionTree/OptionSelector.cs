@@ -1,13 +1,14 @@
-﻿namespace SaveManagerCLI.OptionTree;
+﻿using SaveManagerCLI.OptionTree.ConsoleInterface;
+
+namespace SaveManagerCLI.OptionTree;
 
 /// <summary>
 /// Class to handle selecting options from an <see cref="Option"/> tree
 /// </summary>
 /// <remarks>
-/// The <see cref="globalRoot"/> cannot be chosen as an option, i.e . it is not selectable and is only used as a reference.
-/// However, <c>allowEscapingFromRoot</c> in <see cref="PrintOptionSelector"/> can be set to <see langword="true"/> to allow returning from the method without actually choosing a value, enabling a default way to go back.
+/// The <see cref="globalRoot"/> is the reference <see cref="Option"/> used by this instance, i.e . it is (usually) not selectable.
 /// </remarks>
-public partial class OptionSelector
+public class OptionSelector
 {
     private readonly Option globalRoot;
     public Option CurrentRoot { get; private set; }
@@ -32,28 +33,6 @@ public partial class OptionSelector
             if (option.IsRoot)
             {
                 visibleOptions.AddRange(GetVisibleOptions(option, depth + 1));
-            }
-        }
-        return visibleOptions.ToArray();
-    }
-
-    internal static Option[] Test1(Option root)
-    {
-        List<Option> visibleOptions = [];
-        Option currentRoot = root;
-        var looper = new Stack<Option>(root.Children);
-
-        while (looper.Count > 0)
-        {
-            var currentOption = looper.Pop();
-
-            visibleOptions.Add(currentOption);
-            if (currentOption.IsRoot)
-            {
-                foreach (var item in currentOption.Children.Reverse<Option>())
-                {
-                    looper.Push(item);
-                }
             }
         }
         return visibleOptions.ToArray();

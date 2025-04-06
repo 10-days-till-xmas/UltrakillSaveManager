@@ -1,4 +1,5 @@
 ﻿using SaveManagerCLI.OptionTree;
+using SaveManagerCLI.OptionTree.ConsoleInterface;
 
 namespace SaveManagerCLI.SaveManipulation;
 
@@ -58,7 +59,7 @@ internal class SimpleDirectoryExplorer
         Console.CursorTop = 0;
         do
         {
-            selectedSave = selector.PrintOptionSelector<FileInfo>(true, true);
+            selectedSave = ConsoleOptionSelector.PrintOptionSelector<FileInfo>(selector, true, true);
             if (selectedSave is null)
             {
                 return;
