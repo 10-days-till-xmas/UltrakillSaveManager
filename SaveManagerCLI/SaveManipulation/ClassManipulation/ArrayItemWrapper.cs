@@ -13,8 +13,8 @@ internal class ArrayItemWrapper : Wrapper
         Index = index;
     }
 
-    internal static ArrayItemWrapper CreateArrayItemWrapper(Array parentArray, int index)
+    internal static ArrayItemWrapper CreateArrayItemWrapper(string name, Array parentArray, int index)
     {
-        return new ArrayItemWrapper(parentArray, index);
+        return new ArrayItemWrapper(parentArray, index) { Name = name };
     }
 }

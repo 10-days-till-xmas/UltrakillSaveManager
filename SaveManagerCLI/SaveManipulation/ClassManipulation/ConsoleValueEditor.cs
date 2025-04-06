@@ -26,7 +26,7 @@ internal static class ConsoleValueEditor
                 ConsoleUtils.Error("Invalid input");
                 Console.CursorTop -= 2;
             }
-        } 
+        }
         throw new Exception("Failed to parse value");
     }
 
