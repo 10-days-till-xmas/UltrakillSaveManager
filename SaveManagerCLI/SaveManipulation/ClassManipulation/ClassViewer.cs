@@ -26,7 +26,7 @@ internal class ClassViewer
         Console.WriteLine(rootName);
         // TODO: find a way to patch the names, so that it can display its type and value (if primitive), or array size
 
-        return ConsoleOptionSelector.PrintOptionSelector<object>(selector, true, true);
+        return ConsoleOptionSelector.PrintOptionSelector<object>(selector, inputHandlingFlags: InputHandlingFlags.UseNumber | InputHandlingFlags.AllowEscaping);
     }
 
     internal static Branch<object> MakeBranchFromClass(object obj, string? name = null)

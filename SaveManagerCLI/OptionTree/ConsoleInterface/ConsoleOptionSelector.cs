@@ -1,31 +1,10 @@
 ﻿namespace SaveManagerCLI.OptionTree.ConsoleInterface;
 
-internal class ConsoleOptionSelector
+internal class ConsoleOptionSelector(OptionSelector optionSelector)
 {
-    [Flags]
-    public enum PrintOptionFlags
-    {
-        None = 0,
-        PreClearConsole = 1, // TODO: Implement more options
-        Default = PreClearConsole
-    }
-
-    [Flags]
-    public enum InputHandlingFlags
-    {
-        None = 0,
-        AllowEscaping = 1,
-        UseNumber = 1 << 1,
-        Default = UseNumber
-    }
-
-    private OptionSelector OptionSelector { get; }
+    private OptionSelector OptionSelector => optionSelector;
     private readonly int ConsoleLine = Console.CursorTop;
     private int messageLine;
-    public ConsoleOptionSelector(OptionSelector optionSelector)
-    {
-        OptionSelector = optionSelector;
-    }
 
     /// <summary>
     /// Displays a list of LocalOptions and allows the user to select one by using the arrow keys or the number keys
@@ -36,8 +15,8 @@ internal class ConsoleOptionSelector
                                            PrintOptionFlags printOptionFlags = PrintOptionFlags.Default,
                                            InputHandlingFlags inputHandlingFlags = InputHandlingFlags.Default)
     {
-        var OptionSelectorCLI = new ConsoleOptionSelector(optionSelector);
-        return OptionSelectorCLI.PrintOptionSelector<T>(printOptionFlags, inputHandlingFlags);
+        return new ConsoleOptionSelector(optionSelector)
+            .PrintOptionSelector<T>(printOptionFlags, inputHandlingFlags);
     }
 
     /// <summary>
@@ -58,7 +37,6 @@ internal class ConsoleOptionSelector
         } while (!leafSelected);
         return selectedLeaf!;
     }
-    
 
     /// <summary>
     /// Processes console key inputs to navigate through the options and perform selection actions.
@@ -162,7 +140,6 @@ internal class ConsoleOptionSelector
         }
     }
 
-    
     private void PrintOptions(PrintOptionFlags optionFlags, bool selected = false)
     {
         if (optionFlags.HasFlag(PrintOptionFlags.PreClearConsole))

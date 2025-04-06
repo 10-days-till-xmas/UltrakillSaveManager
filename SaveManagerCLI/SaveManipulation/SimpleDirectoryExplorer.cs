@@ -59,7 +59,7 @@ internal class SimpleDirectoryExplorer
         Console.CursorTop = 0;
         do
         {
-            selectedSave = ConsoleOptionSelector.PrintOptionSelector<FileInfo>(selector, true, true);
+            selectedSave = ConsoleOptionSelector.PrintOptionSelector<FileInfo>(selector, PrintOptionFlags.Default, InputHandlingFlags.AllowEscaping | InputHandlingFlags.UseNumber);
             if (selectedSave is null)
             {
                 return;

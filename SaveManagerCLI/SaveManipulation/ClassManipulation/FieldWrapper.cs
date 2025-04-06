@@ -27,6 +27,7 @@ internal class FieldWrapper : Wrapper
     {
         return CreateFieldWrapper(field.Name, field, instance);
     }
+
     internal static FieldWrapper CreateFieldWrapper(string name, FieldInfo field, object instance)
     {
         return new FieldWrapper(field, instance) { Name = name };
