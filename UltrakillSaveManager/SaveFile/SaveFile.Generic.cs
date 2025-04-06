@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace UltrakillSaveManager.SaveFile;
 
-public partial class SaveFile<T> where T : class
+public class SaveFile<T> where T : class
 {
     private T save;
     private readonly string path;

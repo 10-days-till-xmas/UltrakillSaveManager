@@ -4,7 +4,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace UltrakillSaveManager.SaveFile;
 
-public partial class SaveFile
+public class SaveFile
 {
     private object _saveData;
     private readonly string path;
