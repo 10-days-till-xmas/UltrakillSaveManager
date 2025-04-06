@@ -1,52 +1,40 @@
 ﻿namespace SaveManagerCLI.SaveManipulation.ClassManipulation;
 
-internal class ConsoleValueEditor
+internal static class ConsoleValueEditor
 {
-    internal Wrapper ValueWrapper { get; init; }
-    internal string ValueName { get; init; }
-    internal Type ValueType => ValueWrapper.WrappedType;
-
-    internal string ValueTypeName => ValueType.Name;
-
-    internal ConsoleValueEditor(string name, Wrapper wrapper)
+    public static object? PrintValueEditor(string name, object? currentValue, Type type)
     {
-        ValueName = name;
-        ValueWrapper = wrapper;
-    }
-
-    public void PrintValueEditor()
-    {
-        Console.WriteLine($"Editing {ValueName}");
-        Console.WriteLine($"Type: {ValueTypeName}");
-        Console.WriteLine($"Current value: {ValueWrapper.Getter()}");
+        Console.WriteLine($"Editing {name}");
+        Console.WriteLine($"Type: {type.Name}");
+        Console.WriteLine($"Current value: {currentValue}");
         Console.WriteLine("Enter new value:");
-        bool repeat = true;
-        do
+        while (true)
         {
-            string? newValue = Console.ReadLine();
+            var newValue = Console.ReadLine();
             if (string.IsNullOrWhiteSpace(newValue))
             {
-                Console.WriteLine("Invalid input");
+                ConsoleUtils.Error("Invalid input");
+                Console.CursorTop -= 2;
                 continue;
             }
-            if (TryParseValue(newValue, out object? result))
+            if (TryParseValue(newValue, type, out object? result))
             {
-                ValueWrapper.Setter(result);
-                Console.WriteLine("Value set");
-                repeat = false;
+                return result;
             }
             else
             {
-                Console.WriteLine("Invalid input");
+                ConsoleUtils.Error("Invalid input");
+                Console.CursorTop -= 2;
             }
-        } while (repeat);
+        } 
+        throw new Exception("Failed to parse value");
     }
 
-    private bool TryParseValue(string value, out object? result)
+    private static bool TryParseValue(string value, Type type, out object? result)
     {
         try
         {
-            result = Convert.ChangeType(value, ValueType);
+            result = Convert.ChangeType(value, type);
             return true;
         }
         catch (Exception)

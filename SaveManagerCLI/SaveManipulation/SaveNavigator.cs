@@ -26,17 +26,21 @@ public class SaveNavigator
         Console.WriteLine(saveFileInfo.Name);
         Console.ResetColor();
         var saveViewer = new ClassViewer(saveFileInfo.Name, saveFile.SaveData, saveFile.Type);
-        bool repeat = true;
-        do
+
+        while (true)
         {
             var output = saveViewer.PrintOptions();
             Console.Clear();
-            if (output is Wrapper outWrapper)
+            if (output is not Wrapper outWrapper)
             {
-                var getOut = outWrapper.Getter();
+                break;
             }
             else
-                repeat = false;
-        } while (repeat);
+            {
+                var newValue = ConsoleValueEditor.PrintValueEditor(outWrapper.Name, outWrapper.Getter(), outWrapper.WrappedType);
+                outWrapper.Setter(newValue);
+                saveFile.Write();
+            }
+        }
     }
 }
