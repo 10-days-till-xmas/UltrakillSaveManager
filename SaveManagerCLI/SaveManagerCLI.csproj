@@ -12,6 +12,7 @@
     <VersionSuffix>beta</VersionSuffix>
     <PackageOutputPath>$(OutputPath)Package</PackageOutputPath>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+    <Configurations>Debug;Release;Package</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
