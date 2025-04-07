@@ -361,4 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/SaveManagerCLI/GlobalSuppressions.cs
+
+/SaveManagerCLI/Properties/GlobalSuppressions.cs
