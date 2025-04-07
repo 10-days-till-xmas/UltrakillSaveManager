@@ -1,6 +1,7 @@
 ﻿using SaveManagerCLI.OptionTree;
 using SaveManagerCLI.OptionTree.ConsoleInterface;
 using SaveManagerCLI.SaveManipulation;
+using System.Reflection;
 using System.Text;
 
 namespace SaveManagerCLI;
@@ -19,6 +20,12 @@ internal class Program
         Console.OutputEncoding = Encoding.UTF8;
         Console.Title = "Save Manager CLI";
 
+        AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
+        {
+            string path = ProgramSettings.AssemblyPath;
+            return File.Exists(path) ? Assembly.LoadFrom(path) : null;
+        };
+
         MenuLoop();
     }
 
@@ -27,7 +34,7 @@ internal class Program
         while (true)
         {
             Console.Clear();
-            Action onExecute = ConsoleOptionSelector.PrintOptionSelector<Action>(mainMenuSelector);
+              Action onExecute = ConsoleOptionSelector.PrintOptionSelector<Action>(mainMenuSelector);
             onExecute();
         }
     }
