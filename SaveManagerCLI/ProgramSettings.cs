@@ -17,45 +17,123 @@ internal static class ProgramSettings
         AssemblyPath = Path.Join(gameDir, "ULTRAKILL_Data", "Managed", "Assembly-CSharp.dll");
     }
 
-    public static string SaveDirectory { get; set; } = @"C:\Program Files (x86)\Steam\steamapps\common\ULTRAKILL\Saves";
+    private static string _saveDirectory = @"C:\Program Files (x86)\Steam\steamapps\common\ULTRAKILL\Saves";
+
+    public static string SaveDirectory
+    {
+        get
+        {
+            return _saveDirectory;
+        }
+
+        set
+        {
+            if (Directory.Exists(value))
+            {
+                _saveDirectory = value;
+            }
+            else
+            {
+                ConsoleUtils.Error($"The directory \"{value}\" does not exist.");
+                ConsoleUtils.WaitForKeyPress();
+            }
+        }
+    }
+
+    private static string _assemblyPath = @"C:\Program Files (x86)\Steam\steamapps\common\ULTRAKILL\ULTRAKILL_Data\Managed\Assembly-CSharp.dll";
 
     /// <summary>
-    /// Used just in case the assembly path can't be resolved on its own
+    /// A path to Ultrakill's Assembly-CSharp.dll. <br/>
+    /// Used in case the assembly path can't be resolved on its own
     /// </summary>
-    public static string AssemblyPath { get; set; } = @"C:\Program Files (x86)\Steam\steamapps\common\ULTRAKILL\ULTRAKILL_Data\Managed\Assembly-CSharp.dll";
+    public static string AssemblyPath
+    {
+        get
+        {
+            return _assemblyPath;
+        }
+        set
+        {
+            if (!File.Exists(value))
+            {
+                ConsoleUtils.Error($"The file \"{value}\" does not exist.");
+                ConsoleUtils.WaitForKeyPress();
+                return;
+            }
+            _assemblyPath = value;
+        }
+    }
 
     internal static void PromptToChangeGameDirectory()
     {
         string gameDir = "";
-        PromptToChangeString(ref gameDir, "Game Directory");
-        GameDir(gameDir);
+        if (PromptToChangeString(ref gameDir, "Game Directory", StringType.DirectoryPath))
+        {
+            GameDir(gameDir);
+        }
     }
 
     internal static void PromptToChangeSaveDirectory()
     {
         string saveFolderDir = SaveDirectory;
-        PromptToChangeString(ref saveFolderDir, "SaveData Folder Directory");
+        PromptToChangeString(ref saveFolderDir, "SaveData Folder Directory", StringType.DirectoryPath);
         SaveDirectory = saveFolderDir;
     }
 
     internal static void PromptToChangeAssemblyPath()
     {
         string assemblyPath = AssemblyPath;
-        PromptToChangeString(ref assemblyPath, "Assembly-CSharp.dll Path");
+        PromptToChangeString(ref assemblyPath, "Assembly-CSharp.dll Path", StringType.FilePath);
         AssemblyPath = assemblyPath;
     }
 
-    internal static void PromptToChangeString(ref string target, string name)
+    private enum StringType
     {
+        String,
+        FilePath,
+        DirectoryPath
+    }
+
+    private static bool PromptToChangeString(ref string target, string name, StringType stringType = StringType.String)
+    {
+        if (!string.IsNullOrWhiteSpace(target))
+        {
+            Console.WriteLine($"Old value: {target}");
+        }
         Console.WriteLine($"Enter the {name}:");
         string? input;
         do
         {
             input = Console.ReadLine();
         } while (string.IsNullOrWhiteSpace(input));
-        Console.Write($"{name}: ");
-        Color stringColor = Color.FromArgb(0xd6, 0x9d, 0x85);
-        ConsoleUtils.ColoredString($"\"{input}\"", stringColor);
+        switch (stringType)
+        {
+            case StringType.String:
+                break;
+
+            case StringType.FilePath:
+                if (!File.Exists(input))
+                {
+                    ConsoleUtils.Error($"The file \"{input}\" does not exist.");
+                    ConsoleUtils.WaitForKeyPress();
+                    return false;
+                }
+                break;
+
+            case StringType.DirectoryPath:
+                if (!Directory.Exists(input))
+                {
+                    ConsoleUtils.Error($"The directory \"{input}\" does not exist.");
+                    ConsoleUtils.WaitForKeyPress();
+                    return false;
+                }
+                break;
+        }
         target = input!;
+        Console.Write($"{name}: ");
+        Color stringColor = Color.FromArgb(0xd6, 0x9d, 0x85); // a peach colour
+        string coloredInput = ConsoleUtils.ColoredString($"\"{input}\"", stringColor);
+        Console.WriteLine(coloredInput);
+        return true;
     }
 }
