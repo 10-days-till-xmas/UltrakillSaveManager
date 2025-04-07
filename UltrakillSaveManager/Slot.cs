@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace SaveManagerCLI;
+namespace UltrakillSaveManager;
 
 public class Slot(int slot)
 {
